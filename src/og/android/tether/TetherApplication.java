@@ -821,10 +821,13 @@ public class TetherApplication extends Application {
         h.put("bin", binariesExists());
         h.put("stat", status);
         //h.put("dur", duration);
-        String tetherNetworkDevice = TetherApplication.this.getTetherNetworkDevice();
-        long [] trafficCount = TetherApplication.this.coretask.getDataTraffic(tetherNetworkDevice);
-        h.put("bup", trafficCount[0]);
-        h.put("bdwn", trafficCount[1]);
+        try {
+            String tetherNetworkDevice = TetherApplication.this.getTetherNetworkDevice();
+            long [] trafficCount = TetherApplication.this.coretask.getDataTraffic(tetherNetworkDevice);
+            h.put("bup", trafficCount[0]);
+            h.put("bdwn", trafficCount[1]);
+        } catch (UnsatisfiedLinkError e) {
+        }
         h.put("ffox", isPackageInstalled("org.mozilla.firefox"));
 		try {
 	        h.put("ertm", getDeclaredField("android.bluetooth.BluetoothSocket", "TYPE_EL2CAP"));
