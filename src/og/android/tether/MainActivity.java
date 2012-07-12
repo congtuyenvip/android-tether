@@ -59,7 +59,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.google.android.c2dm.C2DMessaging;
-import com.opengarden.android.MeshClient.MeshClientApplication;
 
 import org.json.JSONArray;
 import org.json.JSONException;
