@@ -135,6 +135,7 @@ public class TetherApplication extends Application {
 	private static final String APPLICATION_PROPERTIES_URL = "https://github.com/opengarden/android-tether/raw/stable/application.properties";
 	private static final String APPLICATION_DOWNLOAD_URL = "https://github.com/opengarden/android-tether/raw/stable/files";
 	private static final String APPLICATION_STATS_URL = "http://opengarden.com/android-tether/stats";
+    static final String FORUM_URL = "http://forum.opengarden.com/";
 	static final String FORUM_RSS_URL = "http://forum.opengarden.com/categories/wifi-tether-support/feed.rss";
 	
 	static final String MESSAGE_POST_STATS = "og.android.tether/POST_STATS";
@@ -148,7 +149,11 @@ public class TetherApplication extends Application {
 		
 		//create CoreTask
 		this.coretask = new CoreTask();
-		this.coretask.setPath(this.getApplicationContext().getFilesDir().getParent());
+		try {
+		    this.coretask.setPath(this.getApplicationContext().getFilesDir().getParent());
+		} catch (Exception e) {
+		    this.coretask.setPath("/data/data/og.android.tether");
+		}
 		Log.d(MSG_TAG, "Current directory is "+this.coretask.DATA_FILE_PATH);
 		
         // Check Homedir, or create it

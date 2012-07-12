@@ -12,12 +12,16 @@
 
 package og.android.tether;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import android.R.drawable;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.AlertDialog.Builder;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -55,6 +59,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.google.android.c2dm.C2DMessaging;
+import com.opengarden.android.MeshClient.MeshClientApplication;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -125,7 +130,19 @@ public class MainActivity extends Activity {
     private static void setCurrent(MainActivity current){
     	MainActivity.currentInstance = current;
     }
-	
+
+    String tagURL(String url, String medium, String content, String campaign) {
+        String p = url.contains("?") ? "&" : "?";
+        String source = "og.android.tether_" + application.getVersionNumber();
+        try {
+            source = URLEncoder.encode(source, "UTF-8");
+            medium = URLEncoder.encode(medium, "UTF-8");
+            content = URLEncoder.encode(content, "UTF-8");
+            campaign = URLEncoder.encode(campaign, "UTF-8");
+        } catch (UnsupportedEncodingException e) {}
+        return url + p + "utm_source=" + source + "&utm_medium=" + medium + "&utm_content=" + content + "&utm_campaign=" + campaign;
+    }
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -232,15 +249,25 @@ public class MainActivity extends Activity {
         this.rssView.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d(MSG_TAG, parent + ":" + view + ":" + position + ":" + id);
-                Intent viewRssLink;
+                MainActivity.this.application.statRSSClicks();
+                String url = null;
                 try {
-                    MainActivity.this.application.statRSSClicks();
-                    viewRssLink = new Intent(Intent.ACTION_VIEW)
-                        .setData(Uri.parse(MainActivity.this.jsonRssArray
-                                .getJSONObject(position).getString("link")));
-                    startActivity(viewRssLink);
+                    url = MainActivity.this.jsonRssArray.getJSONObject(position).getString("link");
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    url = TetherApplication.FORUM_URL;
+                }
+                url = tagURL(url, "android", "rss", "community");
+                Intent viewRssLink = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(url));
+                try {
+                    startActivity(viewRssLink);
+                } catch (ActivityNotFoundException e) {
+                    url = tagURL(TetherApplication.FORUM_URL, "android", "rss", "community");
+                    viewRssLink = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(url));
+                    try {
+                        startActivity(viewRssLink);
+                    } catch (ActivityNotFoundException e2) {
+                        e2.printStackTrace();
+                    }
                 }
             }
         });
