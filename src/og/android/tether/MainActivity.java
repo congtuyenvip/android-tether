@@ -16,6 +16,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import android.R.drawable;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -143,6 +144,7 @@ public class MainActivity extends Activity {
     }
 
     /** Called when the activity is first created. */
+    @TargetApi(4)
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	Log.d(MSG_TAG, "Calling onCreate()");
