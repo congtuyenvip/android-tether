@@ -532,6 +532,7 @@ public class MainActivity extends Activity {
              String action = intent.getAction();
              if (action.equals(Intent.ACTION_BATTERY_CHANGED)) {
 	            	 int temp = (intent.getIntExtra("temperature", 0));
+	            	 MainActivity.this.application.lastTemperature = temp;
 	            	 int celsius = (int)((temp+5)/10);
 	            	 int fahrenheit = (int)(((temp/10)/0.555)+32+0.5);
 	            	 Log.d(MSG_TAG, "Temp ==> "+temp+" -- Celsius ==> "+celsius+" -- Fahrenheit ==> "+fahrenheit);

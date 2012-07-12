@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 
 import og.android.tether.R;
 import og.android.tether.data.ClientData;
@@ -35,7 +36,6 @@ import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -52,7 +52,7 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.provider.Settings.Secure;
+import android.provider.Settings.SettingNotFoundException;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -60,7 +60,7 @@ import android.widget.Toast;
 public class TetherApplication extends Application {
 
 	public static final String MSG_TAG = "TETHER -> TetherApplication";
-    public static final String MESHCLIENT_GOOGLE_PLAY_URL = "market://details?id=com.opengarden.android.MeshClient";
+    public static final String MESHCLIENT_GOOGLE_PLAY_URL = "market://details?id=com.opengarden.android.MeshClient&referrer=utm_source%3Dog.android.tether%26utm_medium%3Dandroid%26utm_campaign%3Dnonroot";
     public static final String MESSAGE_LAUNCH_CHECK = "og.android.meshclient/LAUNCH_CHECK";
     
 	public final String DEFAULT_PASSPHRASE = "abcdefghijklm";
@@ -108,7 +108,9 @@ public class TetherApplication extends Application {
 	
 	// Access-control
 	boolean accessControlSupported = true;
-	
+
+	int lastTemperature = 0;
+
 	// Whitelist
 	public CoreTask.Whitelist whitelist = null;
 	// Supplicant
@@ -676,20 +678,19 @@ public class TetherApplication extends Application {
 			}
 		}).start();
     }
-    
-    public static Field getDeclaredField(String className, String fieldName) {
-        try {
-            return Class.forName(className).getDeclaredField(fieldName);
-        } catch (SecurityException e) {
-            Log.d(MSG_TAG, "getDeclaredField failed", e);
-        } catch (NoSuchFieldException e) {
-            Log.d(MSG_TAG, "getDeclaredField failed", e);
-        } catch (ClassNotFoundException e) {
-            Log.d(MSG_TAG, "getDeclaredField failed", e);
-        }
-        return null;
+
+    public static Object getDeclaredField(Class<?> c, String name)
+            throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        Field f = c.getDeclaredField(name);
+        f.setAccessible(true);
+        return f.get(c);
     }
-    
+
+    public static Object getDeclaredField(String className, String fieldName)
+            throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException, ClassNotFoundException {
+        return getDeclaredField(Class.forName(className), fieldName);
+    }
+
     public boolean isProviderSupported(String checkProvider) {
         List<String> providers;
         // isProviderEnabled should throws a IllegalArgumentException if provider is not supported
@@ -725,19 +726,70 @@ public class TetherApplication extends Application {
 		return installed;
     }
 
+    public boolean isPhone() {
+        TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        switch (tm.getPhoneType()) {
+        case TelephonyManager.PHONE_TYPE_NONE:
+            return false;
+        case TelephonyManager.PHONE_TYPE_GSM:
+        case TelephonyManager.PHONE_TYPE_CDMA:
+        default:
+            return true;
+        }
+    }
+
     public void reportStats(int status) {
         final HashMap<String,Object> h = new HashMap<String,Object>();
-        h.put("aid", Settings.Secure.getString(getContentResolver(), Secure.ANDROID_ID));
-        h.put("aver", Build.VERSION.RELEASE);
-        h.put("asdk", Build.VERSION.SDK_INT);
-        h.put("mdl", Build.MODEL);
-        Field mfr = getDeclaredField("android.os.Build", "MANUFACTURER");
-        if (mfr != null) {
+        String aid = null;
+        try {
+            aid = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        } catch (NullPointerException e) {
+            Log.e("TetherApplication", "", e);
+        }
+        if (aid != null) {
+            h.put("aid", aid);
+        }
+        String uuid = "";
+        // add them twice so we get 32 characters
+        for (int i = 0; i < 2; i++) {
+            if (aid != null) {
+                uuid += aid;
+            }
             try {
-                h.put("mfr", mfr.get(null));
+                uuid += getDeclaredField(android.os.Build.class, "SERIAL");
             } catch (IllegalArgumentException e) {
             } catch (IllegalAccessException e) {
+            } catch (NoSuchFieldError e) {
+            } catch (SecurityException e) {
+            } catch (NoSuchFieldException e) {
             }
+        }
+        if (uuid.length() < 32) {
+            uuid = settings.getString("uuid", UUID.randomUUID().toString());
+            settings.edit().putString("uuid", uuid).commit();
+        } else {
+            uuid = (uuid.substring(0, 8) + "-" +
+                    uuid.substring(8, 12) + "-" +
+                    uuid.substring(12, 16) + "-" +
+                    uuid.substring(16, 20) + "-" +
+                    uuid.substring(20, 32));
+        }
+        h.put("uuid", uuid.toUpperCase());
+        h.put("aver", Build.VERSION.RELEASE);
+        try {
+            h.put("asdk", getDeclaredField(android.os.Build.VERSION.class, "SDK_INT"));
+        } catch (IllegalArgumentException e) {
+        } catch (IllegalAccessException e) {
+        } catch (SecurityException e) {
+        } catch (NoSuchFieldException e) {
+        }
+        h.put("mdl", Build.MODEL);
+        try {
+            h.put("mfr", getDeclaredField(android.os.Build.class, "MANUFACTURER"));
+        } catch (SecurityException e) {
+        } catch (IllegalArgumentException e) {
+        } catch (NoSuchFieldException e) {
+        } catch (IllegalAccessException e) {
         }
         TelephonyManager tm = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
         h.put("mno", tm.getNetworkOperatorName());
@@ -770,12 +822,16 @@ public class TetherApplication extends Application {
         h.put("bdwn", trafficCount[1]);
         h.put("ffox", isPackageInstalled("org.mozilla.firefox"));
 		try {
-	        Field f = BluetoothSocket.class.getDeclaredField("TYPE_EL2CAP");
-	        f.setAccessible(true);
-	        h.put("ertm", f.get(BluetoothSocket.class));
+	        h.put("ertm", getDeclaredField("android.bluetooth.BluetoothSocket", "TYPE_EL2CAP"));
 		} catch (Exception e) {
 			h.put("ertm", false);
 		}
+        try {
+            h.put("side", Settings.Secure.getInt(getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS));
+        } catch (SettingNotFoundException e) {
+        }
+        h.put("temp", lastTemperature);
+        h.put("phon", isPhone());
 		h.put("fbon", settings.getBoolean("facebook_connected", false));
 		h.put("coac", settings.getInt("connect_activities", 0));
 		h.put("fbcr", settings.getInt("fb_connect_requests", 0));
