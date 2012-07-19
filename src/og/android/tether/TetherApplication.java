@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
-//import og.android.tether.R;
 import og.android.tether.data.ClientData;
 import og.android.tether.system.Configuration;
 import og.android.tether.system.ConfigurationAdv;
