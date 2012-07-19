@@ -406,6 +406,12 @@ public class TetherService extends Service {
         boolean bluetoothPref = TetherService.this.application.settings.getBoolean("bluetoothon", false);
         boolean bluetoothWifi = TetherService.this.application.settings.getBoolean("bluetoothkeepwifi", false);
 
+        if (configAdv) {
+            TetherService.this.application.updateConfigurationAdv();    
+        } else {
+            TetherService.this.application.updateConfiguration();
+        }
+        
         if (bluetoothPref) {
     		if (setBluetoothState(true) == false){
     			status = false;
@@ -420,13 +426,7 @@ public class TetherService extends Service {
         	}
         	TetherService.this.disableWifi();
         }
-        
-        if (configAdv) {
-            TetherService.this.application.updateConfigurationAdv();    
-        } else {
-            TetherService.this.application.updateConfiguration();
-        }
-        
+               
     		// Starting service
         if (TetherService.this.serviceState != STATE_RUNNING) {
         		if(status && (status = TetherService.this.application.coretask.runRootCommand(
