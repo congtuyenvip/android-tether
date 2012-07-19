@@ -393,7 +393,7 @@ public class TetherService extends Service {
             final String tetherStopCommand = TetherService.this.application.settings.getBoolean("configadv", false) ?
                     "/bin/tether stopadv" : "/bin/tether stop";
             final String tetherStartCommand = TetherService.this.application.settings.getBoolean("configadv", false) ?
-                    "/bin/tether start" : "/bin/tether start";
+                    "/bin/tether startadv" : "/bin/tether start";
 
     		new Thread(new Runnable() { public void run() {
     		boolean status = TetherService.this.application.coretask.runRootCommand(
