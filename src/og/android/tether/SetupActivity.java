@@ -95,7 +95,10 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
         	ListPreference txpowerPreference = (ListPreference)findPreference("txpowerpref");
         	wifiGroup.removePreference(txpowerPreference);
         }
-        
+
+        ((ListPreference)findPreference("devicepref")).setDependency("configadv");
+        ((ListPreference)findPreference("setuppref")).setDependency("configadv");
+
         // Diable Bluetooth-tethering if not supported by the kernel
         if (Configuration.hasKernelFeature("CONFIG_BT_BNEP=") == false) {
         	PreferenceGroup btGroup = (PreferenceGroup)findPreference("btprefs");
