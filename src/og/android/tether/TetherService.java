@@ -76,6 +76,7 @@ public class TetherService extends Service {
 	private Thread dnsUpdateThread = null;	
 	
 	public static DataCount dataCount = null;
+	private boolean configAdv = false;
 	
 	public TetherService() {
 		this.serviceBinder = new ServiceBinder();
@@ -106,7 +107,7 @@ public class TetherService extends Service {
 
 		TetherService.singleton = this;
 		this.application = (TetherApplication)getApplication();
-		
+		this.configAdv = TetherService.this.application.settings.getBoolean("configadv", false);
 		// init wifiManager
         this.wifiManager = (WifiManager)this.getSystemService(Context.WIFI_SERVICE);
         
@@ -220,7 +221,8 @@ public class TetherService extends Service {
         
         // Updating all configs
         String tetherCommand = "/bin/tether start";
-        if (TetherService.this.application.settings.getBoolean("configadv", false)) {
+        configAdv = TetherService.this.application.settings.getBoolean("configadv", false);
+        if (configAdv) {
             tetherCommand = "/bin/tether startadv";
             TetherService.this.application.updateConfigurationAdv();    
         } else {
@@ -323,7 +325,7 @@ public class TetherService extends Service {
         boolean bluetoothWifi = TetherService.this.application.settings.getBoolean("bluetoothkeepwifi", false);
         
         String tetherCommand = "/bin/tether stop";
-        if (TetherService.this.application.settings.getBoolean("configadv", false)) {
+        if (configAdv) {
             tetherCommand = "/bin/tether stopadv";    
         }
         
@@ -390,10 +392,8 @@ public class TetherService extends Service {
     		sendBroadcastState(TetherService.this.serviceState = STATE_RESTARTING);
     		
             // Updating all configs
-            final String tetherStopCommand = TetherService.this.application.settings.getBoolean("configadv", false) ?
-                    "/bin/tether stopadv" : "/bin/tether stop";
-            final String tetherStartCommand = TetherService.this.application.settings.getBoolean("configadv", false) ?
-                    "/bin/tether startadv" : "/bin/tether start";
+            final String tetherStopCommand = configAdv ? "/bin/tether stopadv" : "/bin/tether stop";
+            final String tetherStartCommand = configAdv ? "/bin/tether startadv" : "/bin/tether start";
 
     		new Thread(new Runnable() { public void run() {
     		boolean status = TetherService.this.application.coretask.runRootCommand(
@@ -421,7 +421,7 @@ public class TetherService extends Service {
         	TetherService.this.disableWifi();
         }
         
-        if (TetherService.this.application.settings.getBoolean("configadv", false)) {
+        if (configAdv) {
             TetherService.this.application.updateConfigurationAdv();    
         } else {
             TetherService.this.application.updateConfiguration();
@@ -500,8 +500,7 @@ public class TetherService extends Service {
 
     public void restartSecuredWifi() {
     	try {
-    	    String tetherRestartCommand = this.application.settings.getBoolean("configadv", false) ?
-    	            "/bin/tether restartsecwifiadv" : "/bin/tether restartsecwifi";
+    	    String tetherRestartCommand = configAdv ? "/bin/tether restartsecwifiadv" : "/bin/tether restartsecwifi";
 			if (this.application.coretask.isNatEnabled() && this.application.coretask.isProcessRunning("bin/dnsmasq")) {
 		    	Log.d(MSG_TAG, "Restarting iptables for access-control-changes!");
 				if (!this.application.coretask.runRootCommand(this.application.coretask.DATA_FILE_PATH + tetherRestartCommand)) {
