@@ -736,7 +736,7 @@ public class TetherApplication extends Application {
         if (configuration.isTiadhocSupported()) {
             TetherApplication.this.copyFile(TetherApplication.this.coretask.DATA_FILE_PATH+"/conf/tiwlan.ini", "0644", R.raw.tiwlan_ini);
             Hashtable<String,String> values = this.tiwlan.get();
-            values.put("dot11DesiredSSID", this.settings.getString("ssidpref", "AndroidTether"));
+            values.put("dot11DesiredSSID", this.settings.getString("ssidpref", DEFAULT_SSID));
             values.put("dot11DesiredChannel", this.settings.getString("channelpref", "1"));
             this.tiwlan.write(values);
         }
