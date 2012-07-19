@@ -219,7 +219,14 @@ public class TetherService extends Service {
         boolean bluetoothWifi = TetherService.this.application.settings.getBoolean("bluetoothkeepwifi", false);
         
         // Updating all configs
-        TetherService.this.application.updateConfiguration();
+        String tetherCommand = "/bin/tether start";
+        if (TetherService.this.application.settings.getBoolean("configadv", false)) {
+            tetherCommand = "/bin/tether startadv";
+            TetherService.this.application.updateConfigurationAdv();    
+        } else {
+            TetherService.this.application.updateConfiguration();
+        }
+        
 
         if (bluetoothPref) {
     		if (setBluetoothState(true) == false) {
@@ -242,7 +249,7 @@ public class TetherService extends Service {
     		if ((TetherService.this.serviceState != STATE_RUNNING) &&
     			(TetherService.this.serviceState != STATE_FAIL_LOG)) {
     			if(started = TetherService.this.application.coretask
-    					.runRootCommand(TetherService.this.application.coretask.DATA_FILE_PATH + "/bin/tether start 1")) {  				
+    					.runRootCommand(TetherService.this.application.coretask.DATA_FILE_PATH + tetherCommand)) {  				
 	    			TetherService.this.serviceState = STATE_RUNNING;        	
 				// Acquire Wakelock
 	    			TetherService.this.application.acquireWakeLock();						
@@ -315,8 +322,13 @@ public class TetherService extends Service {
         boolean bluetoothPref = TetherService.this.application.settings.getBoolean("bluetoothon", false);
         boolean bluetoothWifi = TetherService.this.application.settings.getBoolean("bluetoothkeepwifi", false);
         
+        String tetherCommand = "/bin/tether stop";
+        if (TetherService.this.application.settings.getBoolean("configadv", false)) {
+            tetherCommand = "/bin/tether stopadv";    
+        }
+        
     		boolean stopped = TetherService.this.application.coretask.runRootCommand(
-    				TetherService.this.application.coretask.DATA_FILE_PATH+"/bin/tether stop 1");
+    				TetherService.this.application.coretask.DATA_FILE_PATH + tetherCommand);
     		if(!stopped)
     			TetherService.this.serviceState = STATE_FAIL_EXEC;
     		else
@@ -377,9 +389,15 @@ public class TetherService extends Service {
     		Log.d(MSG_TAG, "restartTether()");
     		sendBroadcastState(TetherService.this.serviceState = STATE_RESTARTING);
     		
+            // Updating all configs
+            final String tetherStopCommand = TetherService.this.application.settings.getBoolean("configadv", false) ?
+                    "/bin/tether stopadv" : "/bin/tether stop";
+            final String tetherStartCommand = TetherService.this.application.settings.getBoolean("configadv", false) ?
+                    "/bin/tether start" : "/bin/tether start";
+
     		new Thread(new Runnable() { public void run() {
     		boolean status = TetherService.this.application.coretask.runRootCommand(
-    				TetherService.this.application.coretask.DATA_FILE_PATH+"/bin/tether stop 1");
+    				TetherService.this.application.coretask.DATA_FILE_PATH + tetherStopCommand);
     		if(!status) TetherService.this.serviceState = STATE_FAIL_EXEC;
     		
     		TetherService.this.application.notificationManager.cancelAll();
@@ -388,9 +406,6 @@ public class TetherService extends Service {
         boolean bluetoothPref = TetherService.this.application.settings.getBoolean("bluetoothon", false);
         boolean bluetoothWifi = TetherService.this.application.settings.getBoolean("bluetoothkeepwifi", false);
 
-        // Updating all configs
-        TetherService.this.application.updateConfiguration();       
-        
         if (bluetoothPref) {
     		if (setBluetoothState(true) == false){
     			status = false;
@@ -406,10 +421,16 @@ public class TetherService extends Service {
         	TetherService.this.disableWifi();
         }
         
+        if (TetherService.this.application.settings.getBoolean("configadv", false)) {
+            TetherService.this.application.updateConfigurationAdv();    
+        } else {
+            TetherService.this.application.updateConfiguration();
+        }
+        
     		// Starting service
         if (TetherService.this.serviceState != STATE_RUNNING) {
         		if(status && (status = TetherService.this.application.coretask.runRootCommand(
-        				TetherService.this.application.coretask.DATA_FILE_PATH+"/bin/tether start 1"))) {
+        				TetherService.this.application.coretask.DATA_FILE_PATH + tetherStartCommand))) {
         		
         			TetherService.this.application.showStartNotification(getString(R.string.global_application_tethering_running));
         			TetherService.this.trafficCounterEnable(true);
@@ -479,9 +500,11 @@ public class TetherService extends Service {
 
     public void restartSecuredWifi() {
     	try {
+    	    String tetherRestartCommand = this.application.settings.getBoolean("configadv", false) ?
+    	            "/bin/tether restartsecwifiadv" : "/bin/tether restartsecwifiadv";
 			if (this.application.coretask.isNatEnabled() && this.application.coretask.isProcessRunning("bin/dnsmasq")) {
 		    	Log.d(MSG_TAG, "Restarting iptables for access-control-changes!");
-				if (!this.application.coretask.runRootCommand(this.application.coretask.DATA_FILE_PATH+"/bin/tether restartsecwifi 1")) {
+				if (!this.application.coretask.runRootCommand(this.application.coretask.DATA_FILE_PATH + tetherRestartCommand)) {
 					this.application.displayToastMessage(getString(R.string.global_application_error_restartsecwifi));
 					return;
 				}
