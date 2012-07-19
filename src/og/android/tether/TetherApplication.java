@@ -72,7 +72,7 @@ public class TetherApplication extends Application {
 	public String deviceType = Configuration.DEVICE_GENERIC; 
 	public String interfaceDriver = Configuration.DRIVER_WEXT; 
 	
-	public ConfigurationAdv configuration = null;
+	public ConfigurationAdv configurationAdv = null;
 	
 	// StartUp-Check perfomed
 	public boolean startupCheckPerformed = false;
@@ -464,24 +464,19 @@ public class TetherApplication extends Application {
 		}
     }
     
-    
-    ///////////////////////////////////////////////////////////////////////////////////////
-    // START Advanced Device Configuration
-    ///////////////////////////////////////////////////////////////////////////////////////
-    
-    public void updateDeviceParameters() {
-        Log.d(MSG_TAG, "updateDeviceParameters()");
+    public void updateDeviceParametersAdv() {
+        Log.d(MSG_TAG, "updateDeviceParametersAdv()");
         String device = this.settings.getString("devicepref", "auto");
         if (device.equals("auto")) {
-            this.configuration = new ConfigurationAdv();
+            this.configurationAdv = new ConfigurationAdv();
         }
         else {
-            this.configuration = new ConfigurationAdv(device);
+            this.configurationAdv = new ConfigurationAdv(device);
         }
     }
     
-    public ConfigurationAdv getDeviceParameters() {
-        return this.configuration;
+    public ConfigurationAdv getDeviceParametersAdv() {
+        return this.configurationAdv;
     }
     
     public void updateConfigurationAdv() {
@@ -489,7 +484,7 @@ public class TetherApplication extends Application {
         long startStamp = System.currentTimeMillis();
 
         // Updating configuration
-        updateDeviceParameters();
+        updateDeviceParametersAdv();
         
         boolean encEnabled = this.settings.getBoolean("encpref", false);
         boolean acEnabled = this.settings.getBoolean("acpref", false);
@@ -509,9 +504,9 @@ public class TetherApplication extends Application {
         // Check if "auto"-setup method is selected
         String setupMethod = this.settings.getString("setuppref", "auto");
         
-        if (configuration.isTiadhocSupported() == false) {
+        if (configurationAdv.isTiadhocSupported() == false) {
             if (setupMethod.equals("auto")) {
-                setupMethod = configuration.getAutoSetupMethod();
+                setupMethod = configurationAdv.getAutoSetupMethod();
             }
         }
         else {
@@ -522,7 +517,7 @@ public class TetherApplication extends Application {
         String subnet = lannetwork.substring(0, lannetwork.lastIndexOf("."));
         //this.tethercfg.read();
         this.tethercfg.put("og.configuration", "adv");
-        this.tethercfg.put("device.type", configuration.getDevice());
+        this.tethercfg.put("device.type", configurationAdv.getDevice());
         this.tethercfg.put("wifi.essid", ssid);
         this.tethercfg.put("wifi.channel", channel);
         this.tethercfg.put("ip.network", lannetwork.split("/")[0]);
@@ -563,7 +558,7 @@ public class TetherApplication extends Application {
         
 
         // Write tether-section variable
-        this.tethercfg.put("setup.section.generic", ""+configuration.isGenericSetupSection());
+        this.tethercfg.put("setup.section.generic", ""+configurationAdv.isGenericSetupSection());
 
         // Wifi-interface
         this.tethercfg.put("wifi.interface", this.coretask.getProp("wifi.interface"));
@@ -575,48 +570,48 @@ public class TetherApplication extends Application {
             }
         }
         else if (setupMethod.equals("netd")) {
-            this.tethercfg.put("tether.interface", configuration.getNetdInterface());
+            this.tethercfg.put("tether.interface", configurationAdv.getNetdInterface());
             if (encEnabled) {
-                this.tethercfg.put("wifi.encryption", configuration.getEncryptionIdentifier());
+                this.tethercfg.put("wifi.encryption", configurationAdv.getEncryptionIdentifier());
             }
             else {
-                this.tethercfg.put("wifi.encryption", configuration.getOpennetworkIdentifier());
+                this.tethercfg.put("wifi.encryption", configurationAdv.getOpennetworkIdentifier());
             }
         }
         else if (setupMethod.equals("hostapd")) {
-            this.tethercfg.put("hostapd.module.path", configuration.getHostapdKernelModulePath());
-            this.tethercfg.put("hostapd.module.name", configuration.getHostapdKernelModuleName());
-            this.tethercfg.put("hostapd.bin.path", configuration.getHostapdPath());
-            this.tethercfg.put("tether.interface", configuration.getHostapdInterface());
+            this.tethercfg.put("hostapd.module.path", configurationAdv.getHostapdKernelModulePath());
+            this.tethercfg.put("hostapd.module.name", configurationAdv.getHostapdKernelModuleName());
+            this.tethercfg.put("hostapd.bin.path", configurationAdv.getHostapdPath());
+            this.tethercfg.put("tether.interface", configurationAdv.getHostapdInterface());
             if (encEnabled) {
                 this.tethercfg.put("wifi.encryption", "unused");
             }
-            if (configuration.getHostapdLoaderCmd() == null || configuration.getHostapdLoaderCmd().length() <= 0) {
+            if (configurationAdv.getHostapdLoaderCmd() == null || configurationAdv.getHostapdLoaderCmd().length() <= 0) {
                 this.tethercfg.put("hostapd.loader.cmd", "disabled");
             }
             else {
-                this.tethercfg.put("hostapd.loader.cmd", configuration.getHostapdLoaderCmd());
+                this.tethercfg.put("hostapd.loader.cmd", configurationAdv.getHostapdLoaderCmd());
             }
         }
         else if (setupMethod.equals("tiwlan0")) {
-            this.tethercfg.put("tether.interface", configuration.getTiadhocInterface());
+            this.tethercfg.put("tether.interface", configurationAdv.getTiadhocInterface());
             if (encEnabled) {
                 this.tethercfg.put("wifi.encryption", "wep");
             }
         }       
         else if (setupMethod.startsWith("softap")) {
-            this.tethercfg.put("tether.interface", configuration.getSoftapInterface());
-            this.tethercfg.put("wifi.firmware.path", configuration.getSoftapFirmwarePath());
+            this.tethercfg.put("tether.interface", configurationAdv.getSoftapInterface());
+            this.tethercfg.put("wifi.firmware.path", configurationAdv.getSoftapFirmwarePath());
             if (encEnabled) {
-                this.tethercfg.put("wifi.encryption", configuration.getEncryptionIdentifier());
+                this.tethercfg.put("wifi.encryption", configurationAdv.getEncryptionIdentifier());
             }
             else {
-                this.tethercfg.put("wifi.encryption", configuration.getOpennetworkIdentifier());
+                this.tethercfg.put("wifi.encryption", configurationAdv.getOpennetworkIdentifier());
             }
         }
 
-        this.tethercfg.put("wifi.load.cmd", configuration.getWifiLoadCmd());
-        this.tethercfg.put("wifi.unload.cmd", configuration.getWifiUnloadCmd());
+        this.tethercfg.put("wifi.load.cmd", configurationAdv.getWifiLoadCmd());
+        this.tethercfg.put("wifi.unload.cmd", configurationAdv.getWifiUnloadCmd());
         
         this.tethercfg.put("wifi.txpower", txpower);
 
@@ -627,10 +622,10 @@ public class TetherApplication extends Application {
 
             // Getting encryption-method if setup-method on auto 
             if (wepsetupMethod.equals("auto")) {
-                if (configuration.isWextSupported()) {
+                if (configurationAdv.isWextSupported()) {
                     wepsetupMethod = "iwconfig";
                 }
-                else if (configuration.isTiadhocSupported()) {
+                else if (configurationAdv.isTiadhocSupported()) {
                     wepsetupMethod = "wpa_supplicant";
                 }
             }
@@ -671,14 +666,14 @@ public class TetherApplication extends Application {
         
         // hostapd.conf
         if (setupMethod.equals("hostapd")) {
-            this.installHostapdConfig(configuration.getHostapdTemplate());
+            this.installHostapdConfig(configurationAdv.getHostapdTemplate());
             this.hostapdcfg.read();
             
             // Update the hostapd-configuration in case we have Motorola Droid X
-            if (configuration.getHostapdTemplate().equals("droi")) {
+            if (configurationAdv.getHostapdTemplate().equals("droi")) {
                 this.hostapdcfg.put("ssid", ssid);
                 this.hostapdcfg.put("channel", channel);
-                this.hostapdcfg.put("interface", configuration.getHostapdInterface());
+                this.hostapdcfg.put("interface", configurationAdv.getHostapdInterface());
                 if (encEnabled) {
                     this.hostapdcfg.put("wpa", ""+2);
                     this.hostapdcfg.put("wpa_pairwise", "CCMP");
@@ -687,7 +682,7 @@ public class TetherApplication extends Application {
                 }
             }
             // Update the hostapd-configuration in case we have ZTE Blade
-            else if (configuration.getHostapdTemplate().equals("mini")) {
+            else if (configurationAdv.getHostapdTemplate().equals("mini")) {
                 this.hostapdcfg.put("ssid", ssid);
                 this.hostapdcfg.put("channel_num", channel);
                 if (encEnabled) {
@@ -698,10 +693,10 @@ public class TetherApplication extends Application {
                 }               
             }
             // Update the hostapd-configuration in case we have a ???
-            else if (configuration.getHostapdTemplate().equals("tiap")) {
+            else if (configurationAdv.getHostapdTemplate().equals("tiap")) {
                 this.hostapdcfg.put("ssid", ssid);
                 this.hostapdcfg.put("channel", channel);
-                this.hostapdcfg.put("interface", configuration.getHostapdInterface());
+                this.hostapdcfg.put("interface", configurationAdv.getHostapdInterface());
                 if (encEnabled) {
                     this.hostapdcfg.put("wpa", ""+2);
                     this.hostapdcfg.put("wpa_pairwise", "CCMP");
@@ -732,7 +727,7 @@ public class TetherApplication extends Application {
             }
         }
         
-        if (configuration.isTiadhocSupported()) {
+        if (configurationAdv.isTiadhocSupported()) {
             TetherApplication.this.copyFile(TetherApplication.this.coretask.DATA_FILE_PATH+"/conf/tiwlan.ini", "0644", R.raw.tiwlan_ini);
             Hashtable<String,String> values = this.tiwlan.get();
             values.put("dot11DesiredSSID", this.settings.getString("ssidpref", DEFAULT_SSID));
@@ -761,15 +756,7 @@ public class TetherApplication extends Application {
             this.copyFile(this.coretask.DATA_FILE_PATH+"/conf/hostapd.conf", "0644", R.raw.hostapd_conf_tiap);
         }
     }
-    
-    
-    
-    ///////////////////////////////////////////////////////////////////////////////////////
-    // STOP Advanced Device Configuration
-    ///////////////////////////////////////////////////////////////////////////////////////
-    
-    
-    
+
     // gets user preference on whether wakelock should be disabled during tethering
     public boolean isWakeLockDisabled(){
 		return this.settings.getBoolean("wakelockpref", true);
