@@ -501,7 +501,7 @@ public class TetherService extends Service {
     public void restartSecuredWifi() {
     	try {
     	    String tetherRestartCommand = this.application.settings.getBoolean("configadv", false) ?
-    	            "/bin/tether restartsecwifiadv" : "/bin/tether restartsecwifiadv";
+    	            "/bin/tether restartsecwifiadv" : "/bin/tether restartsecwifi";
 			if (this.application.coretask.isNatEnabled() && this.application.coretask.isProcessRunning("bin/dnsmasq")) {
 		    	Log.d(MSG_TAG, "Restarting iptables for access-control-changes!");
 				if (!this.application.coretask.runRootCommand(this.application.coretask.DATA_FILE_PATH + tetherRestartCommand)) {
