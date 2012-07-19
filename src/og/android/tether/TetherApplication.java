@@ -209,7 +209,7 @@ public class TetherApplication extends Application {
     	this.mainIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
     	this.accessControlIntent = PendingIntent.getActivity(this, 1, new Intent(this, AccessControlActivity.class), 0);
     	requestStatsAlarm();
-    	
+
 	}
 
 	@Override
@@ -250,7 +250,7 @@ public class TetherApplication extends Application {
 	
 	
 	public void updateConfiguration() {
-		
+		Log.d(MSG_TAG, "updateConfiguration()");
 		long startStamp = System.currentTimeMillis();
 		
         boolean bluetoothPref = this.settings.getBoolean("bluetoothon", false);
@@ -471,6 +471,7 @@ public class TetherApplication extends Application {
     ///////////////////////////////////////////////////////////////////////////////////////
     
     public void updateDeviceParameters() {
+        Log.d(MSG_TAG, "updateDeviceParameters()");
         String device = this.settings.getString("devicepref", "auto");
         if (device.equals("auto")) {
             this.configuration = new ConfigurationAdv();
@@ -485,7 +486,7 @@ public class TetherApplication extends Application {
     }
     
     public void updateConfigurationAdv() {
-        
+        Log.d(MSG_TAG, "updateConfigurationAdv()");
         long startStamp = System.currentTimeMillis();
 
         // Updating configuration
@@ -493,7 +494,7 @@ public class TetherApplication extends Application {
         
         boolean encEnabled = this.settings.getBoolean("encpref", false);
         boolean acEnabled = this.settings.getBoolean("acpref", false);
-        String ssid = this.settings.getString("ssidpref", "AndroidTether");
+        String ssid = this.settings.getString("ssidpref", DEFAULT_SSID);
         String txpower = this.settings.getString("txpowerpref", "disabled");
         String lannetwork = this.settings.getString("lannetworkpref", DEFAULT_LANNETWORK);
         String wepkey = this.settings.getString("passphrasepref", DEFAULT_PASSPHRASE);
@@ -517,7 +518,7 @@ public class TetherApplication extends Application {
         else {
             setupMethod = "tiwlan0";
         }
-            
+        Log.d(MSG_TAG, "WiFi setup method: " + setupMethod);   
         // tether.conf
         String subnet = lannetwork.substring(0, lannetwork.lastIndexOf("."));
         //this.tethercfg.read();
@@ -645,7 +646,7 @@ public class TetherApplication extends Application {
                 
                 // Update wpa_supplicant.conf
                 Hashtable<String,String> values = new Hashtable<String,String>();
-                values.put("ssid", "\""+this.settings.getString("ssidpref", "AndroidTether")+"\"");
+                values.put("ssid", "\""+this.settings.getString("ssidpref", DEFAULT_SSID)+"\"");
                 values.put("wep_key0", "\""+this.settings.getString("passphrasepref", DEFAULT_PASSPHRASE)+"\"");
                 this.wpasupplicant.write(values);
             }
@@ -903,8 +904,6 @@ public class TetherApplication extends Application {
     };
 
     public void installFiles() {
-    	new Thread(new Runnable(){
-			public void run(){
 				String message = null;
 				// tether
 		    	if (message == null) {
@@ -991,8 +990,6 @@ public class TetherApplication extends Application {
 				Message msg = new Message();
 				msg.obj = message;
 				TetherApplication.this.displayMessageHandler.sendMessage(msg);
-			}
-		}).start();
     }
 
     public static Object getDeclaredField(Class<?> c, String name)
