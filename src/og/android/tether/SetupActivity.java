@@ -22,6 +22,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Color;
@@ -63,6 +64,7 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
     
     private EditTextPreference prefPassphrase;
     private EditTextPreference prefSSID;
+    private ListPreference prefDevice;
     
     private static int ID_DIALOG_RESTARTING = 2;
     
@@ -96,10 +98,10 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
         	wifiGroup.removePreference(txpowerPreference);
         }
 
-        ((ListPreference)findPreference("devicepref")).setDependency("configadv");
-        ((ListPreference)findPreference("setuppref")).setDependency("configadv");
+        this.prefDevice = ((ListPreference)findPreference("devicepref"));   //setDependency("configadv");
+        //((ListPreference)findPreference("setuppref")).setDependency("configadv");
 
-        // Diable Bluetooth-tethering if not supported by the kernel
+        // Disable Bluetooth-tethering if not supported by the kernel
         if (Configuration.hasKernelFeature("CONFIG_BT_BNEP=") == false) {
         	PreferenceGroup btGroup = (PreferenceGroup)findPreference("btprefs");
         	btGroup.setEnabled(false);
@@ -252,11 +254,23 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 		SetupActivity.this.setWifiPrefsEnableHandler.sendMessage(msg);
     }
 	
+    protected void onNewIntent(Intent i) {
+        Log.d(MSG_TAG, "onNewIntent() " + i);
+        setIntent(i);
+    }
+    
     @Override
     protected void onResume() {
     	Log.d(MSG_TAG, "Calling onResume()");
     	super.onResume();
     	getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+    	
+    	try {
+    	    if (getIntent().getAction().equals("")) {
+    	    }
+    	} catch (NullPointerException e) {
+    	    Log.d(MSG_TAG, "", e);
+    	}
     }
     
     @Override

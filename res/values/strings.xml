@@ -84,7 +84,8 @@
 	<string name="setup_activity_bt_warning_title">Warning: Bluetooth</string>
 	<string name="setup_activity_bt_warning_ok">OK</string>
 	<string name="setup_activity_txpower_warning_title">Warning: Transmit Power</string>
-	<string name="setup_activity_txpower_warning_ok">OK</string>	
+	<string name="setup_activity_txpower_warning_ok">OK</string>
+	<string name="setup_layout_category_device">Device</string>	
 	<string name="setup_layout_category_bluetooth">Bluetooth</string>
 	<string name="setup_layout_category_wifi">Wifi</string>
 	<string name="setup_layout_category_security">Security</string>
@@ -181,7 +182,7 @@
 	<string name="auto_post_text">Auto Post</string>
 	<string name="dialog_launched_title">Install Open Garden</string>
 	<string name="dialog_launched_text">This app can\'t run on your phone, but our new app probably will. We can install it right now.\n\nOn the next screen, tap \"Download\"</string>
-	<string name="anchor_link"><u>Non-root Tether</u></string>
+	<string name="anchor_link">Non-root Tether</string>
 
     <string-array name="notificationmodenames">  
 		<item>None</item>  
@@ -212,8 +213,9 @@
 		<item>Fahrenheit</item>  
 	</string-array>		
 	
-    <string-array name="devicenames">  
-        <item>Auto</item>
+    <string-array name="devicenames">
+        <item>Default</item>  
+        <item>Auto Detect</item>
         <item>Generic</item>
         <item>Generic ICS</item>
         <item>Google NexusOne</item>
@@ -266,8 +268,9 @@
         <item>ZTE Blade</item>  
     </string-array>
     
-    <string-array name="setupnames">  
-        <item>Auto</item> 
+    <string-array name="setupnames">
+        <item>Default</item>  
+        <item>Auto Detect</item> 
         <item>WEXT (ad-hoc)</item>  
         <item>Netd (master)</item> 
         <item>Hostapd (master)</item>
@@ -275,7 +278,8 @@
         <item>Softap for Samsung (master)</item>      
     </string-array>
     
-    <string-array name="devicevalues">  
+    <string-array name="devicevalues">
+        <item>default</item>  
         <item>auto</item> 
         <item>generic</item>
         <item>generic_ics</item>  
@@ -329,7 +333,8 @@
         <item>blade</item> 
     </string-array>
     
-    <string-array name="setupvalues">  
+    <string-array name="setupvalues">
+        <item>default</item> 
         <item>auto</item>
         <item>wext</item>  
         <item>netd</item> 

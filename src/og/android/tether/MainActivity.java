@@ -49,10 +49,12 @@ import android.view.animation.ScaleAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -107,7 +109,7 @@ public class MainActivity extends Activity {
 	private JSONArray jsonRssArray = null;
 	private Panel rssPanel = null;
 	private TextView communityText = null;
-	private TextView anchorLink = null;
+	private LinearLayout bottomButtonLayout = null;
 	
 	private static int ID_DIALOG_STARTING = 0;
 	private static int ID_DIALOG_STOPPING = 1;
@@ -294,12 +296,18 @@ public class MainActivity extends Activity {
         });
         hideCommunityText(!this.rssPanel.isOpen());
         
-        this.anchorLink = (TextView) findViewById(R.id.anchorLink);
-        this.anchorLink.setOnClickListener(new OnClickListener() {
+        this.bottomButtonLayout = (LinearLayout) findViewById(R.id.bottomButtonLayout);
+        ((Button)findViewById(R.id.anchorLinkButton)).setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 startGooglePlayMeshclient();
             }
         });
+        ((Button)findViewById(R.id.configButton)).setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                startActivityForResult(new Intent(MainActivity.this, SetupActivity.class).setAction("FOO"), 33);
+            }
+        });
+        
         
         // Start Button
         this.startBtn = (ImageView) findViewById(R.id.startTetherBtn);
@@ -421,7 +429,7 @@ public class MainActivity extends Activity {
 	
 	public void onResume() {
 		Log.d(MSG_TAG, "Calling onResume()");
-		
+		Log.d(MSG_TAG, "ADVCONFIG " + this.application.settings.getBoolean("configadv", false));
 		try {
 		    if (getIntent().getData().getPath().equals("/LAUNCH_CHECK")) {
 		        setIntent(null);
@@ -762,7 +770,7 @@ public class MainActivity extends Activity {
 		Log.d(MSG_TAG, "TOGGLE: RUNNING");
     		this.startTblRow.setVisibility(View.GONE);
     		this.stopTblRow.setVisibility(View.VISIBLE);
-    		this.anchorLink.setVisibility(View.INVISIBLE);
+    		this.bottomButtonLayout.setVisibility(View.INVISIBLE);
     		// Animation
     		if (this.animation != null)
     			this.stopBtn.startAnimation(this.animation);
@@ -798,7 +806,7 @@ public class MainActivity extends Activity {
     		this.startTblRow.setVisibility(View.VISIBLE);
     		this.stopTblRow.setVisibility(View.GONE);
     		this.trafficRow.setVisibility(View.INVISIBLE);
-    		this.anchorLink.setVisibility(View.VISIBLE);
+    		this.bottomButtonLayout.setVisibility(View.VISIBLE);
     		//??? this.application.trafficCounterEnable(false);
     		// Animation
     		if (this.animation != null)

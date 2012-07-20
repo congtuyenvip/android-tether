@@ -189,6 +189,27 @@
 			</TableRow> 
 		</TableLayout>
 	</ScrollView>
+	<LinearLayout android:id="@+id/bottomButtonLayout"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    android:gravity="bottom"
+	    android:layout_alignParentBottom="true"
+	    android:layout_centerHorizontal="true">
+		<Button android:id="@+id/anchorLinkButton" style="?android:attr/buttonStyle"
+		    android:layout_width="0dp"
+		    android:layout_height="wrap_content"
+		    android:text="@string/anchor_link"
+		    android:textAppearance="?android:attr/textAppearanceMedium"
+		    android:layout_weight="1" />
+		<Button android:id="@+id/configButton" style="?android:attr/buttonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Config"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_weight="1" />
+	</LinearLayout>
+	<!--
     <TextView android:id="@+id/anchorLink"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -198,6 +219,7 @@
         android:padding="5dp"
         android:layout_alignParentBottom="true"
         android:gravity="bottom" />
+    -->
 	<RelativeLayout android:id="@+id/trafficRow"
 		android:gravity="bottom"
 	    android:layout_width="fill_parent"
