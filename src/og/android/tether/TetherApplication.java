@@ -246,12 +246,14 @@ public class TetherApplication extends Application {
 		this.clientMacRemoveList = new ArrayList<String>();
 	}
 	
-	
-	
 	public void updateConfiguration() {
 		Log.d(MSG_TAG, "updateConfiguration()");
-		long startStamp = System.currentTimeMillis();
+		if (!this.settings.getString("devicepref", "default").equals("default")) {
+		    updateConfigurationAdv();
+		    return;
+		}
 		
+		long startStamp = System.currentTimeMillis();
         boolean bluetoothPref = this.settings.getBoolean("bluetoothon", false);
 		boolean encEnabled = this.settings.getBoolean("encpref", false);
 		boolean acEnabled = this.settings.getBoolean("acpref", false);
@@ -464,10 +466,17 @@ public class TetherApplication extends Application {
 		}
     }
     
+    public boolean isConfigurationAdv() {
+        return !this.settings.getString("devicepref", "default").equals("default") ||
+               !this.settings.getString("setuppref", "default").equals("default");
+    }
+    
     public void updateDeviceParametersAdv() {
         Log.d(MSG_TAG, "updateDeviceParametersAdv()");
-        String device = this.settings.getString("devicepref", "auto");
-        if (device.equals("auto")) {
+        String device = this.settings.getString("devicepref", "default");
+        if (device.equals("default")) {
+            device = Configuration.getDeviceType();
+        } else if (device.equals("auto")) { 
             this.configurationAdv = new ConfigurationAdv();
         }
         else {

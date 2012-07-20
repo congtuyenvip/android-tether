@@ -107,7 +107,7 @@ public class TetherService extends Service {
 
 		TetherService.singleton = this;
 		this.application = (TetherApplication)getApplication();
-		this.configAdv = TetherService.this.application.settings.getBoolean("configadv", false);
+		this.configAdv = this.application.isConfigurationAdv();
 		// init wifiManager
         this.wifiManager = (WifiManager)this.getSystemService(Context.WIFI_SERVICE);
         
@@ -219,16 +219,12 @@ public class TetherService extends Service {
         boolean bluetoothPref = TetherService.this.application.settings.getBoolean("bluetoothon", false);
         boolean bluetoothWifi = TetherService.this.application.settings.getBoolean("bluetoothkeepwifi", false);
         
-        // Updating all configs
         String tetherCommand = "/bin/tether start";
-        configAdv = TetherService.this.application.settings.getBoolean("configadv", false);
+        TetherService.this.application.updateConfiguration();
+        configAdv = TetherService.this.application.isConfigurationAdv();
         if (configAdv) {
-            tetherCommand = "/bin/tether startadv";
-            TetherService.this.application.updateConfigurationAdv();    
-        } else {
-            TetherService.this.application.updateConfiguration();
+            tetherCommand = "/bin/tether startadv";    
         }
-        
 
         if (bluetoothPref) {
     		if (setBluetoothState(true) == false) {
