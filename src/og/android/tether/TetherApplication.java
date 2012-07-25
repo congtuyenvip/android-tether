@@ -72,7 +72,7 @@ public class TetherApplication extends Application {
 	public String deviceType = Configuration.DEVICE_GENERIC; 
 	public String interfaceDriver = Configuration.DRIVER_WEXT; 
 	
-	public ConfigurationAdv configurationAdv = null;
+	public ConfigurationAdv configurationAdv = new ConfigurationAdv();
 	
 	// StartUp-Check perfomed
 	public boolean startupCheckPerformed = false;
@@ -208,7 +208,9 @@ public class TetherApplication extends Application {
     	this.mainIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
     	this.accessControlIntent = PendingIntent.getActivity(this, 1, new Intent(this, AccessControlActivity.class), 0);
     	requestStatsAlarm();
-
+    	updateDeviceParametersAdv();
+    	updateConfiguration();
+    	
 	}
 
 	@Override

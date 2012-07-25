@@ -72,6 +72,8 @@
 	<string name="setup_activity_error_ssid_invalidchars">SSID contains invalid characters</string>
 	<string name="setup_activity_error_ssid_empty">New SSID cannot be empty</string>
 	<string name="setup_activity_error_ssid_notsaved">, not saved.</string>
+	<string name="setup_activity_info_device_changedto">Device changed to </string>
+	<string name="setup_activity_info_setup_changedto">Setup changed to </string>
 	<string name="setup_activity_info_ssid_changedto">SSID changed to </string>
 	<string name="setup_activity_info_channel_changedto">Channel changed to </string>
 	<string name="setup_activity_info_passphrase_changedto">Passphrase changed to </string>

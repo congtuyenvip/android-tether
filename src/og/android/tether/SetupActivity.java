@@ -13,8 +13,8 @@
 package og.android.tether;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
-import og.android.tether.R;
 import og.android.tether.system.Configuration;
 
 import android.R.drawable;
@@ -25,6 +25,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -54,8 +55,12 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 	private ProgressDialog progressDialog;
 	
 	public static final String MSG_TAG = "TETHER -> SetupActivity";
-
-    private String currentSSID;
+	public static final String DEFAULT_DEVICE = "default";
+	public static final String DEFAULT_SETUP = "default";
+	
+    private String currentDevice;
+    private String currentSetup;
+	private String currentSSID;
     private String currentChannel;
     private String currentPassphrase;
     private String currentLAN;
@@ -76,6 +81,8 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
         this.application = (TetherApplication)this.getApplication();
         
         // Init CurrentSettings
+        this.currentDevice = this.application.settings.getString("devicepref", "auto");
+        this.currentSetup = this.application.settings.getString("setuppref", "auto");
         this.currentSSID = this.application.settings.getString("ssidpref", "OpenGarden"); 
         this.currentChannel = this.application.settings.getString("channelpref", "1");
         this.currentPassphrase = this.application.settings.getString("passphrasepref", this.application.DEFAULT_PASSPHRASE);
@@ -83,7 +90,7 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
         this.currentEncryptionEnabled = this.application.settings.getBoolean("encpref", false);
         this.currentTransmitPower = this.application.settings.getString("txpowerpref", "disabled");
         
-        addPreferencesFromResource(R.layout.setupview); 
+        this.updateSettingsMenu();
         
         // Disable Security (Access Control) if not supported
         if (!this.application.accessControlSupported) {
@@ -98,9 +105,6 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
         	wifiGroup.removePreference(txpowerPreference);
         }
 
-        this.prefDevice = ((ListPreference)findPreference("devicepref"));   //setDependency("configadv");
-        //((ListPreference)findPreference("setuppref")).setDependency("configadv");
-
         // Disable Bluetooth-tethering if not supported by the kernel
         if (Configuration.hasKernelFeature("CONFIG_BT_BNEP=") == false) {
         	PreferenceGroup btGroup = (PreferenceGroup)findPreference("btprefs");
@@ -114,33 +118,7 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
             	btGroup.removePreference(btdiscoverablePreference);
             }        	
         }
-        
-        // Disable "encryption-setup-method"
-        if (this.application.interfaceDriver.startsWith("softap") 
-        		|| this.application.interfaceDriver.equals(Configuration.DRIVER_HOSTAP)) {
-        	PreferenceGroup wifiGroup = (PreferenceGroup)findPreference("wifiprefs");
-        	ListPreference encsetupPreference = (ListPreference)findPreference("encsetuppref");
-        	wifiGroup.removePreference(encsetupPreference);
-        }
-        
-        // Remove Auto-Channel option if not supported by device
-        if (this.application.interfaceDriver.startsWith("softap") == false
-        		|| this.application.interfaceDriver.equals(Configuration.DRIVER_HOSTAP) == false) {
-        	ListPreference channelpref = (ListPreference)findPreference("channelpref");
-        	CharSequence[] entries = channelpref.getEntries();
-        	CharSequence[] targetentries = new CharSequence[entries.length-1];
-        	for (int i=1;i<entries.length;i++) {
-        		targetentries[i-1] = entries[i];
-        	}
-        	CharSequence[] entryvalues = channelpref.getEntryValues();
-        	CharSequence[] targetentryvalues = new CharSequence[entries.length-1];
-        	for (int i=1;i<entryvalues.length;i++) {
-        		targetentryvalues[i-1] = entryvalues[i];
-        	}
-        	channelpref.setEntries(targetentries);
-        	channelpref.setEntryValues(targetentryvalues);
-        }
-        
+                
         // SSID-Validation
         this.prefSSID = (EditTextPreference)findPreference("ssidpref");
         this.prefSSID.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
@@ -154,106 +132,202 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
             return true;
         }});
 
-        // Passphrase-Validation
-        this.prefPassphrase = (EditTextPreference)findPreference("passphrasepref");
-        final int origTextColorPassphrase = SetupActivity.this.prefPassphrase.getEditText().getCurrentTextColor();
-
-        if (Configuration.getWifiInterfaceDriver(this.application.deviceType).startsWith("softap")
-        		|| Configuration.getWifiInterfaceDriver(this.application.deviceType).equals(Configuration.DRIVER_HOSTAP)) {
-        	Log.d(MSG_TAG, "Adding validators for WPA-Encryption.");
-        	this.prefPassphrase.setSummary(this.prefPassphrase.getSummary()+" (WPA/WPA2-PSK)");
-        	this.prefPassphrase.setDialogMessage(getString(R.string.setup_activity_error_passphrase_info));
-	        // Passphrase Change-Listener for WPA-encryption
-        	this.prefPassphrase.getEditText().addTextChangedListener(new TextWatcher() {
-	            public void afterTextChanged(Editable s) {
-	            	// Nothing
-	            }
-		        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-		        	// Nothing
-		        }
-		        public void onTextChanged(CharSequence s, int start, int before, int count) {
-		        	if (s.length() < 8 || s.length() > 30) {
-		        		SetupActivity.this.prefPassphrase.getEditText().setTextColor(Color.RED);
-		        	}
-		        	else {
-		        		SetupActivity.this.prefPassphrase.getEditText().setTextColor(origTextColorPassphrase);
-		        	}
-		        }
-	        });
-        	
-	        this.prefPassphrase.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
-	        	public boolean onPreferenceChange(Preference preference,
-						Object newValue) {
-		        	String validChars = "ABCDEFGHIJKLMONPQRSTUVWXYZ" +
-                      "abcdefghijklmnopqrstuvwxyz" +
-                      "0123456789";
-	        		if (newValue.toString().length() < 8) {
-	        			SetupActivity.this.application.displayToastMessage(getString(R.string.setup_activity_error_passphrase_tooshort));
-	        			return false;
-	        		}
-	        		else if (newValue.toString().length() > 30) {
-	        			SetupActivity.this.application.displayToastMessage(getString(R.string.setup_activity_error_passphrase_toolong));
-	        			return false;	        			
-	        		}
-	        		for (int i = 0 ; i < newValue.toString().length() ; i++) {
-	        		    if (!validChars.contains(newValue.toString().substring(i, i+1))) {
-	        		      SetupActivity.this.application.displayToastMessage(getString(R.string.setup_activity_error_passphrase_invalidchars));
-	        		      return false;
-	        		    }
-	        		  }
-	        		return true;
-	        	}
-	        }); 
-        }
-        else {
-        	Log.d(MSG_TAG, "Adding validators for WEP-Encryption.");
-        	this.prefPassphrase.setSummary(this.prefPassphrase.getSummary()+" (WEP 128-bit)");
-        	this.prefPassphrase.setDialogMessage(getString(R.string.setup_activity_error_passphrase_13chars));
-        	// Passphrase Change-Listener for WEP-encryption
-	        this.prefPassphrase.getEditText().addTextChangedListener(new TextWatcher() {
-	            public void afterTextChanged(Editable s) {
-	            	// Nothing
-	            }
-		        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-		        	// Nothing
-		        }
-		        public void onTextChanged(CharSequence s, int start, int before, int count) {
-		        	if (s.length() == 13) {
-		        		SetupActivity.this.prefPassphrase.getEditText().setTextColor(origTextColorPassphrase);
-		        	}
-		        	else {
-		        		 SetupActivity.this.prefPassphrase.getEditText().setTextColor(Color.RED);
-		        	}
-		        }
-	        });
-	        
-	        this.prefPassphrase.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
-	        	public boolean onPreferenceChange(Preference preference,
-						Object newValue) {
-	        	  String validChars = "ABCDEFGHIJKLMONPQRSTUVWXYZ" +
-	        	                      "abcdefghijklmnopqrstuvwxyz" +
-	        	                      "0123456789";
-	        		if(newValue.toString().length() == 13){
-	        		  for (int i = 0 ; i < 13 ; i++) {
-	        		    if (!validChars.contains(newValue.toString().substring(i, i+1))) {
-	        		      SetupActivity.this.application.displayToastMessage(getString(R.string.setup_activity_error_passphrase_invalidchars));
-	        		      return false;
-	        		    }
-	        		  }
-	        			return true;
-	        		}
-	        		else{
-	        			SetupActivity.this.application.displayToastMessage(getString(R.string.setup_activity_error_passphrase_tooshort));
-	        			return false;
-	        		}
-	        }});
-        }
+      
 		Boolean bluetoothOn = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("bluetoothon", false);
 		Message msg = Message.obtain();
 		msg.what = bluetoothOn ? 0 : 1;
 		SetupActivity.this.setWifiPrefsEnableHandler.sendMessage(msg);
     }
 	
+    
+    private void updateSettingsMenu() {
+        Resources resources = getResources();
+        CharSequence[] entries, entryvalues, targetentries, targetentryvalues;
+        
+        if (getPreferenceScreen() != null) {
+            getPreferenceScreen().removeAll();
+        }
+        addPreferencesFromResource(R.layout.setupview); 
+        
+        String setupMethod = this.application.settings.getString("setuppref", "default");
+        if (setupMethod.equals("auto")) {
+            setupMethod = this.application.getDeviceParametersAdv().getAutoSetupMethod();
+        }
+        
+        // Disable "encryption-setup-method"
+        if (this.application.interfaceDriver.startsWith("softap") 
+                || this.application.interfaceDriver.equals(Configuration.DRIVER_HOSTAP)) {
+            PreferenceGroup wifiGroup = (PreferenceGroup)findPreference("wifiprefs");
+            ListPreference encsetupPreference = (ListPreference)findPreference("encsetuppref");
+            wifiGroup.removePreference(encsetupPreference);
+        }
+        
+        // Passphrase-Validation
+        this.prefPassphrase = (EditTextPreference)findPreference("passphrasepref");
+        final int origTextColorPassphrase = SetupActivity.this.prefPassphrase.getEditText().getCurrentTextColor();
+
+        if ((setupMethod.equals(DEFAULT_SETUP) && Configuration.getWifiInterfaceDriver(this.application.deviceType).startsWith("softap")
+                || Configuration.getWifiInterfaceDriver(this.application.deviceType).equals(Configuration.DRIVER_HOSTAP)) ||
+            (setupMethod.equals("netd") || setupMethod.equals("hostapd") || setupMethod.startsWith("softap"))) {
+            Log.d(MSG_TAG, "Adding validators for WPA-Encryption.");
+            this.prefPassphrase.setSummary(this.prefPassphrase.getSummary()+" (WPA/WPA2-PSK)");
+            this.prefPassphrase.setDialogMessage(getString(R.string.setup_activity_error_passphrase_info));
+            // Passphrase Change-Listener for WPA-encryption
+            this.prefPassphrase.getEditText().addTextChangedListener(new TextWatcher() {
+                public void afterTextChanged(Editable s) {
+                    // Nothing
+                }
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    // Nothing
+                }
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (s.length() < 8 || s.length() > 30) {
+                        SetupActivity.this.prefPassphrase.getEditText().setTextColor(Color.RED);
+                    }
+                    else {
+                        SetupActivity.this.prefPassphrase.getEditText().setTextColor(origTextColorPassphrase);
+                    }
+                }
+            });
+            
+            this.prefPassphrase.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
+                public boolean onPreferenceChange(Preference preference,
+                        Object newValue) {
+                    String validChars = "ABCDEFGHIJKLMONPQRSTUVWXYZ" +
+                      "abcdefghijklmnopqrstuvwxyz" +
+                      "0123456789";
+                    if (newValue.toString().length() < 8) {
+                        SetupActivity.this.application.displayToastMessage(getString(R.string.setup_activity_error_passphrase_tooshort));
+                        return false;
+                    }
+                    else if (newValue.toString().length() > 30) {
+                        SetupActivity.this.application.displayToastMessage(getString(R.string.setup_activity_error_passphrase_toolong));
+                        return false;                       
+                    }
+                    for (int i = 0 ; i < newValue.toString().length() ; i++) {
+                        if (!validChars.contains(newValue.toString().substring(i, i+1))) {
+                          SetupActivity.this.application.displayToastMessage(getString(R.string.setup_activity_error_passphrase_invalidchars));
+                          return false;
+                        }
+                      }
+                    return true;
+                }
+            }); 
+        }
+        else {
+            Log.d(MSG_TAG, "Adding validators for WEP-Encryption.");
+            this.prefPassphrase.setSummary(this.prefPassphrase.getSummary()+" (WEP 128-bit)");
+            this.prefPassphrase.setDialogMessage(getString(R.string.setup_activity_error_passphrase_13chars));
+            // Passphrase Change-Listener for WEP-encryption
+            this.prefPassphrase.getEditText().addTextChangedListener(new TextWatcher() {
+                public void afterTextChanged(Editable s) {
+                    // Nothing
+                }
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    // Nothing
+                }
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (s.length() == 13) {
+                        SetupActivity.this.prefPassphrase.getEditText().setTextColor(origTextColorPassphrase);
+                    }
+                    else {
+                         SetupActivity.this.prefPassphrase.getEditText().setTextColor(Color.RED);
+                    }
+                }
+            });
+            
+            this.prefPassphrase.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
+                public boolean onPreferenceChange(Preference preference,
+                        Object newValue) {
+                  String validChars = "ABCDEFGHIJKLMONPQRSTUVWXYZ" +
+                                      "abcdefghijklmnopqrstuvwxyz" +
+                                      "0123456789";
+                    if(newValue.toString().length() == 13){
+                      for (int i = 0 ; i < 13 ; i++) {
+                        if (!validChars.contains(newValue.toString().substring(i, i+1))) {
+                          SetupActivity.this.application.displayToastMessage(getString(R.string.setup_activity_error_passphrase_invalidchars));
+                          return false;
+                        }
+                      }
+                        return true;
+                    }
+                    else{
+                        SetupActivity.this.application.displayToastMessage(getString(R.string.setup_activity_error_passphrase_tooshort));
+                        return false;
+                    }
+            }});
+        }
+
+        // Remove Auto-Channel option if not supported by device
+        if (this.application.interfaceDriver.startsWith("softap") == false
+                || this.application.interfaceDriver.equals(Configuration.DRIVER_HOSTAP) == false) {
+            ListPreference channelpref = (ListPreference)findPreference("channelpref");
+            entries = channelpref.getEntries();
+            targetentries = new CharSequence[entries.length-1];
+            for (int i=1;i<entries.length;i++) {
+                targetentries[i-1] = entries[i];
+            }
+            entryvalues = channelpref.getEntryValues();
+            targetentryvalues = new CharSequence[entries.length-1];
+            for (int i=1;i<entryvalues.length;i++) {
+                targetentryvalues[i-1] = entryvalues[i];
+            }
+            channelpref.setEntries(targetentries);
+            channelpref.setEntryValues(targetentryvalues);
+        }
+        
+        // Remove unsupported setup-methods
+        ListPreference setuppref = (ListPreference)findPreference("setuppref");
+        String[] setupnames = resources.getStringArray(R.array.setupnames);
+        String[] setupvalues = resources.getStringArray(R.array.setupvalues);
+        
+        ArrayList<String> tmpsetupnames = new ArrayList<String>();
+        ArrayList<String> tmpsetupvalues = new ArrayList<String>();
+        for (int i=0;i<setupvalues.length;i++) {
+            
+            if (!setupvalues[i].equals(DEFAULT_SETUP) &&
+                this.application.settings.getString("devicepref", DEFAULT_DEVICE).equals(DEFAULT_DEVICE))
+                continue;
+            
+            if (setupvalues[i].equals("netd")) {
+                if (this.application.configurationAdv.isNetdSupported() == false) {
+                    continue;
+                }
+            }
+            else if (setupvalues[i].equals("hostapd")) {
+                if (this.application.configurationAdv.isHostapdSupported() == false) {
+                    continue;
+                }
+            }
+            else if (setupvalues[i].equals("softap")) {
+                if (this.application.configurationAdv.isSoftapSupported() == false) {
+                    continue;
+                }
+            }
+            else if (setupvalues[i].equals("softap_samsung")) {
+                if (this.application.configurationAdv.isSoftapSamsungSupported() == false) {
+                    continue;
+                }           
+            }
+            else if (setupvalues[i].equals("wext")) {
+                if (this.application.configurationAdv.isWextSupported() == false) {
+                    continue;
+                }           
+            }
+            tmpsetupnames.add(setupnames[i]);
+            tmpsetupvalues.add(setupvalues[i]);
+        }     
+        targetentries = new CharSequence[tmpsetupnames.size()];
+        targetentryvalues = new CharSequence[tmpsetupvalues.size()];
+        for (int i=0;i<tmpsetupnames.size();i++) {
+            targetentries[i] = tmpsetupnames.get(i);
+            targetentryvalues[i] = tmpsetupvalues.get(i);
+        }
+        setuppref.setEntries(targetentries);
+        setuppref.setEntryValues(targetentryvalues);
+        
+    }
+    
     protected void onNewIntent(Intent i) {
         Log.d(MSG_TAG, "onNewIntent() " + i);
         setIntent(i);
@@ -319,13 +393,64 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
         }
     };
     
+    Handler updateSettingsMenuHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            SetupActivity.this.updateSettingsMenu();
+            super.handleMessage(msg);
+        }
+    };
     
     private void updateConfiguration(final SharedPreferences sharedPreferences, final String key) {
     	new Thread(new Runnable(){
 			public void run(){
 				Looper.prepare();
 			   	String message = null;
-		    	if (key.equals("ssidpref")) {
+			   	
+	             if (key.equals("devicepref")) {
+	                    String newDevice = sharedPreferences.getString("devicepref", DEFAULT_DEVICE);
+	                    
+	                    if (SetupActivity.this.currentDevice.equals(newDevice) == false) {
+	                        SetupActivity.this.currentDevice = newDevice;
+	                        SetupActivity.this.application.updateDeviceParametersAdv();
+	                        SetupActivity.this.updateSettingsMenuHandler.sendEmptyMessage(0);
+	                        message = getString(R.string.setup_activity_info_device_changedto)+" '"+newDevice+"'.";
+	                        try{
+	                            if (TetherService.singleton != null && TetherService.singleton.getState() == TetherService.STATE_RUNNING) {
+	                                TetherService.singleton.restartTether();
+	                            }
+	                        }
+	                        catch (Exception ex) {
+	                            message = getString(R.string.setup_activity_error_restart_tethering);
+	                        }
+	                        // Send Message
+	                        Message msg = new Message();
+	                        msg.obj = message;
+	                        SetupActivity.this.displayToastMessageHandler.sendMessage(msg);
+	                    }
+	                }
+	                else if (key.equals("setuppref")) {
+	                    String newSetup = sharedPreferences.getString("setuppref", DEFAULT_SETUP);
+	                    
+	                    if (SetupActivity.this.currentSetup.equals(newSetup) == false) {
+	                        SetupActivity.this.currentSetup = newSetup;
+	                        SetupActivity.this.application.updateDeviceParametersAdv();
+	                        SetupActivity.this.updateSettingsMenuHandler.sendEmptyMessage(0);
+	                        message = getString(R.string.setup_activity_info_setup_changedto)+" '"+newSetup+"'.";
+	                        try{
+	                            if (TetherService.singleton != null && TetherService.singleton.getState() == TetherService.STATE_RUNNING) {
+	                                TetherService.singleton.restartTether();
+	                            }
+	                        }
+	                        catch (Exception ex) {
+	                            message = getString(R.string.setup_activity_error_restart_tethering);
+	                        }
+	                        // Send Message
+	                        Message msg = new Message();
+	                        msg.obj = message;
+	                        SetupActivity.this.displayToastMessageHandler.sendMessage(msg);
+	                    }
+	                }   
+			   	else if (key.equals("ssidpref")) {
 		    		String newSSID = sharedPreferences.getString("ssidpref", "OpenGarden");
 		    		if (SetupActivity.this.currentSSID.equals(newSSID) == false) {
 	    				SetupActivity.this.currentSSID = newSSID;
