@@ -157,6 +157,13 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
             setupMethod = this.application.getDeviceParametersAdv().getAutoSetupMethod();
         }
         
+        // Disabling Force Wifi-Relod
+        if (!(setupMethod.startsWith("softap") || setupMethod.equals("netd"))) {
+            PreferenceGroup wifiGroup = (PreferenceGroup)findPreference("wifiprefs");
+            CheckBoxPreference reloadWifiPreference = (CheckBoxPreference)findPreference("driverreloadpref");
+            wifiGroup.removePreference(reloadWifiPreference);
+        }
+        
         // Disable "encryption-setup-method"
         if (this.application.interfaceDriver.startsWith("softap") 
                 || this.application.interfaceDriver.equals(Configuration.DRIVER_HOSTAP)) {
