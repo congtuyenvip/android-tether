@@ -292,6 +292,10 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
                 this.application.settings.getString("devicepref", DEFAULT_DEVICE).equals(DEFAULT_DEVICE))
                 continue;
             
+            if (!this.application.settings.getString("devicepref", DEFAULT_DEVICE).equals(DEFAULT_DEVICE) &&
+                    setupvalues[i].equals(DEFAULT_SETUP))
+                continue;
+            
             if (setupvalues[i].equals("netd")) {
                 if (this.application.configurationAdv.isNetdSupported() == false) {
                     continue;
