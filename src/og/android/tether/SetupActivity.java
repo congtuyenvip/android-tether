@@ -414,8 +414,11 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 	                    
 	                    if (SetupActivity.this.currentDevice.equals(newDevice) == false) {
 	                        SetupActivity.this.currentDevice = newDevice;
-	                        if (newDevice.equals(DEFAULT_DEVICE))
+	                        if (newDevice.equals(DEFAULT_DEVICE)) {
 	                            SetupActivity.this.application.settings.edit().putString("setuppref", DEFAULT_SETUP).commit();
+	                        } else if (SetupActivity.this.currentSetup.equals(DEFAULT_SETUP)) {
+	                            SetupActivity.this.application.settings.edit().putString("setuppref", "auto").commit();
+	                        }
 	                        SetupActivity.this.application.updateDeviceParametersAdv();
 	                        SetupActivity.this.updateSettingsMenuHandler.sendEmptyMessage(0);
 	                        message = getString(R.string.setup_activity_info_device_changedto)+" '"+newDevice+"'.";
