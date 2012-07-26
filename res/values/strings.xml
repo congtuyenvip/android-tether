@@ -122,6 +122,7 @@
 	<string name="setup_layout_devicetype">Change Device-Profile</string>
     <string name="setup_layout_devicetype_summary">Change Device-Profile</string>
     <string name="setup_layout_devicetype_dialog_title">Device-Profile</string>
+    <string name="setup_layout_driverreload">Reload WiFi Driver</string>
     <string name="setup_layout_setupmethod">Change Setup-Method</string>
     <string name="setup_layout_setupmethod_summary">Change Setup-Method</string>
     <string name="setup_layout_setupmethod_dialog_title">Setup-Method</string>
