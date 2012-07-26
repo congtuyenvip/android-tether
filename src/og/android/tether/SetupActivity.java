@@ -164,6 +164,13 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
             wifiGroup.removePreference(reloadWifiPreference);
         }
         
+        // Disable "Transmit power" if not supported
+        if (setupMethod.equals("wext") == false) {
+            PreferenceGroup wifiGroup = (PreferenceGroup)findPreference("wifiprefs");
+            ListPreference txpowerPreference = (ListPreference)findPreference("txpowerpref");
+            wifiGroup.removePreference(txpowerPreference);
+        }
+        
         // Disable "encryption-setup-method"
         if (this.application.interfaceDriver.startsWith("softap") 
                 || this.application.interfaceDriver.equals(Configuration.DRIVER_HOSTAP)) {
