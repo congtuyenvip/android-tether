@@ -21,8 +21,11 @@ import android.R.drawable;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Resources;
@@ -360,6 +363,10 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
     	super.onResume();
     	getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
     	
+    	IntentFilter filter = new IntentFilter();
+    	filter.addAction(TetherService.INTENT_STATE);
+    	registerReceiver(intentReceiver, filter);
+    	
     	try {
     	    if (getIntent().getAction().equals("")) {
     	    }
@@ -372,7 +379,8 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
     protected void onPause() {
     	Log.d(MSG_TAG, "Calling onPause()");
         super.onPause();
-        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);   
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+        unregisterReceiver(intentReceiver);
     }
     
     @Override
@@ -393,17 +401,26 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
     	updateConfiguration(sharedPreferences, key);
     }
     
-    Handler restartingDialogHandler = new Handler(){
-        public void handleMessage(Message msg) {
-        	if (msg.what == 0)
-        		SetupActivity.this.showDialog(SetupActivity.ID_DIALOG_RESTARTING);
-        	else
-        		SetupActivity.this.dismissDialog(SetupActivity.ID_DIALOG_RESTARTING);
-        	super.handleMessage(msg);
-        	System.gc();
+    private BroadcastReceiver intentReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(TetherService.INTENT_STATE)) {
+                switch (intent.getIntExtra("state", TetherService.STATE_IDLE)) {
+                   case TetherService.STATE_RESTARTING :
+                       showDialog(SetupActivity.ID_DIALOG_RESTARTING);
+                       break;
+                   case TetherService.STATE_RUNNING :
+                       dismissDialog(SetupActivity.ID_DIALOG_RESTARTING);
+                       break;
+                   default:
+                       dismissDialog(SetupActivity.ID_DIALOG_RESTARTING);
+                       break;                      
+                }
+            }
         }
     };
-    
+        
    Handler displayToastMessageHandler = new Handler() {
         public void handleMessage(Message msg) {
        		if (msg.obj != null) {
@@ -485,13 +502,9 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 	    				message = getString(R.string.setup_activity_info_ssid_changedto)+" '"+newSSID+"'.";
 	    				try{
 		    				if (application.coretask.isNatEnabled() && application.coretask.isProcessRunning("bin/dnsmasq")) {
-				    			// Show RestartDialog
-				    			SetupActivity.this.restartingDialogHandler.sendEmptyMessage(0);
-		    					// Restart Tethering
 				    			
 				    			if(TetherService.singleton != null) TetherService.singleton.restartTether();
 				    			// Dismiss RestartDialog
-				    			SetupActivity.this.restartingDialogHandler.sendEmptyMessage(1);
 		    				}
 	    				}
 	    				catch (Exception ex) {
@@ -510,12 +523,7 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 	    				message = getString(R.string.setup_activity_info_channel_changedto)+" '"+newChannel+"'.";
 	    				try{
 		    				if (application.coretask.isNatEnabled() && application.coretask.isProcessRunning("bin/dnsmasq")) {
-				    			// Show RestartDialog
-				    			SetupActivity.this.restartingDialogHandler.sendEmptyMessage(0);
-				    			// Restart Tethering
 				    			if(TetherService.singleton != null) TetherService.singleton.restartTether();
-				    			// Dismiss RestartDialog
-				    			SetupActivity.this.restartingDialogHandler.sendEmptyMessage(1);
 		    				}
 	    				}
 	    				catch (Exception ex) {
@@ -582,12 +590,7 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 			    		// Restarting
 						try{
 							if (application.coretask.isNatEnabled() && application.coretask.isProcessRunning("bin/dnsmasq")) {
-				    			// Show RestartDialog
-								SetupActivity.this.restartingDialogHandler.sendEmptyMessage(0);
-				    			// Restart Tethering
 								if(TetherService.singleton != null) TetherService.singleton.restartTether();
-				    			// Dismiss RestartDialog
-								SetupActivity.this.restartingDialogHandler.sendEmptyMessage(1);
 							}
 						}
 						catch (Exception ex) {
@@ -607,12 +610,8 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 		    			// Restarting
 						try{
 							if (application.coretask.isNatEnabled() && application.coretask.isProcessRunning("bin/dnsmasq") && application.wpasupplicant.exists()) {
-				    			// Show RestartDialog
-				    			SetupActivity.this.restartingDialogHandler.sendEmptyMessage(0);
 				    			// Restart Tethering
 				    			if(TetherService.singleton != null) TetherService.singleton.restartTether();
-				    			// Dismiss RestartDialog
-				    			SetupActivity.this.restartingDialogHandler.sendEmptyMessage(1);
 							}
 						}
 						catch (Exception ex) {
@@ -634,12 +633,8 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 		    			// Restarting
 						try{
 							if (application.coretask.isNatEnabled() && application.coretask.isProcessRunning("bin/dnsmasq")) {
-				    			// Show RestartDialog
-				    			SetupActivity.this.restartingDialogHandler.sendEmptyMessage(0);
 				    			// Restart Tethering
 				    			if(TetherService.singleton != null) TetherService.singleton.restartTether();
-				    			// Dismiss RestartDialog
-				    			SetupActivity.this.restartingDialogHandler.sendEmptyMessage(1);
 							}
 						}
 						catch (Exception ex) {
@@ -679,12 +674,8 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 		    			// Restarting
 						try{
 							if (application.coretask.isNatEnabled() && application.coretask.isProcessRunning("bin/dnsmasq")) {
-				    			// Show RestartDialog
-				    			SetupActivity.this.restartingDialogHandler.sendEmptyMessage(0);
 				    			// Restart Tethering
 				    			if(TetherService.singleton != null) TetherService.singleton.restartTether();
-				    			// Dismiss RestartDialog
-				    			SetupActivity.this.restartingDialogHandler.sendEmptyMessage(1);
 							}
 							message = getString(R.string.setup_activity_info_lan_changedto)+" '"+lannetwork+"'.";
 							SetupActivity.this.currentLAN = lannetwork;
@@ -707,14 +698,8 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 		    		SetupActivity.this.setWifiPrefsEnableHandler.sendMessage(msg);
 					try{
 						if (application.coretask.isNatEnabled() && (application.coretask.isProcessRunning("bin/dnsmasq") || application.coretask.isProcessRunning("bin/pand"))) {
-			    			// Show RestartDialog
-			    			SetupActivity.this.restartingDialogHandler.sendEmptyMessage(0);
-			    			
 			    			// Restart Tethering
 			    			if(TetherService.singleton != null) TetherService.singleton.restartTether();
-
-			    			// Dismiss RestartDialog
-			    			SetupActivity.this.restartingDialogHandler.sendEmptyMessage(1);
 						}
 					}
 					catch (Exception ex) {
