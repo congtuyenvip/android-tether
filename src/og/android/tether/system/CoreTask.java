@@ -507,7 +507,7 @@ public class CoreTask {
 		    }
 		    Log.d(MSG_TAG, "hasRootPermissions() " + path );
 		    for(String dir : path.split("[:;]")) {
-		        File su = new File(dir + "/su");    
+		        File su = new File(dir + "/su");
 		        if (su.exists()) {
 		            rooted = true;
 		            break;

@@ -81,8 +81,8 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
         this.application = (TetherApplication)this.getApplication();
         
         // Init CurrentSettings
-        this.currentDevice = this.application.settings.getString("devicepref", "auto");
-        this.currentSetup = this.application.settings.getString("setuppref", "auto");
+        this.currentDevice = this.application.settings.getString("devicepref", DEFAULT_DEVICE);
+        this.currentSetup = this.application.settings.getString("setuppref", DEFAULT_SETUP);
         this.currentSSID = this.application.settings.getString("ssidpref", "OpenGarden"); 
         this.currentChannel = this.application.settings.getString("channelpref", "1");
         this.currentPassphrase = this.application.settings.getString("passphrasepref", this.application.DEFAULT_PASSPHRASE);
@@ -149,7 +149,10 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
         }
         addPreferencesFromResource(R.layout.setupview); 
         
-        String setupMethod = this.application.settings.getString("setuppref", "default");
+        if (this.currentDevice.equals(DEFAULT_DEVICE))
+            this.application.settings.edit().putString("setuppref", DEFAULT_SETUP).commit();
+        
+        String setupMethod = this.application.settings.getString("setuppref", DEFAULT_SETUP);
         if (setupMethod.equals("auto")) {
             setupMethod = this.application.getDeviceParametersAdv().getAutoSetupMethod();
         }
@@ -411,6 +414,8 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 	                    
 	                    if (SetupActivity.this.currentDevice.equals(newDevice) == false) {
 	                        SetupActivity.this.currentDevice = newDevice;
+	                        if (newDevice.equals(DEFAULT_DEVICE))
+	                            SetupActivity.this.application.settings.edit().putString("setuppref", DEFAULT_SETUP).commit();
 	                        SetupActivity.this.application.updateDeviceParametersAdv();
 	                        SetupActivity.this.updateSettingsMenuHandler.sendEmptyMessage(0);
 	                        message = getString(R.string.setup_activity_info_device_changedto)+" '"+newDevice+"'.";
@@ -433,6 +438,8 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 	                    
 	                    if (SetupActivity.this.currentSetup.equals(newSetup) == false) {
 	                        SetupActivity.this.currentSetup = newSetup;
+	                        if (newSetup.equals(DEFAULT_SETUP))
+                                SetupActivity.this.application.settings.edit().putString("devicepref", DEFAULT_DEVICE).commit();
 	                        SetupActivity.this.application.updateDeviceParametersAdv();
 	                        SetupActivity.this.updateSettingsMenuHandler.sendEmptyMessage(0);
 	                        message = getString(R.string.setup_activity_info_setup_changedto)+" '"+newSetup+"'.";
