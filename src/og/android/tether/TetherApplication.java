@@ -132,6 +132,7 @@ public class TetherApplication extends Application {
 	public CoreTask coretask = null;
 	
 	public FBManager FBManager = null;
+	boolean offeredMeshclient = false;
 	
 	// Update Url
 	private static final String APPLICATION_PROPERTIES_URL = "https://github.com/opengarden/android-tether/raw/stable/application.properties";

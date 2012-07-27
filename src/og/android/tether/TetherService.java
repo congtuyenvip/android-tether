@@ -77,6 +77,7 @@ public class TetherService extends Service {
 	
 	public static DataCount dataCount = null;
 	private boolean configAdv = false;
+	private boolean offeredMeshclient = false;
 	
 	public TetherService() {
 		this.serviceBinder = new ServiceBinder();
@@ -282,8 +283,10 @@ public class TetherService extends Service {
     		Log.d(MSG_TAG, "Service started: " + started + ", state: " + TetherService.this.serviceState);
     		sendBroadcastState(TetherService.this.serviceState);
 
-    		if (!started || TetherService.this.serviceState != STATE_RUNNING) {
+    		if (!started || TetherService.this.serviceState != STATE_RUNNING &&
+    		        !TetherApplication.singleton.offeredMeshclient) {
     		    TetherApplication.singleton.openLaunchedDialog();
+    		    TetherApplication.singleton.offeredMeshclient = true;
     		}
 
     		}}).start();
