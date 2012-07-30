@@ -299,7 +299,7 @@ public class MainActivity extends Activity {
         this.bottomButtonLayout = (LinearLayout) findViewById(R.id.bottomButtonLayout);
         ((Button)findViewById(R.id.anchorLinkButton)).setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                startGooglePlayMeshclient();
+                startGooglePlayMeshclient("nonroot_tether");
             }
         });
         ((Button)findViewById(R.id.configButton)).setOnClickListener(new OnClickListener() {
@@ -978,7 +978,7 @@ public class MainActivity extends Activity {
         dialog.show();
    	}
 
-   	public Dialog openLaunchedDialog(boolean noroot) {
+   	public Dialog openLaunchedDialog(final boolean noroot) {
         Dialog dialog = new AlertDialog.Builder(this)
         .setMessage(noroot ? R.string.dialog_noroot_text : R.string.dialog_launched_text)
         .setTitle(getString(R.string.dialog_launched_title))
@@ -996,7 +996,7 @@ public class MainActivity extends Activity {
         })
         .setPositiveButton(getString(R.string.main_activity_ok), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                startGooglePlayMeshclient();
+                startGooglePlayMeshclient(noroot ? "fail_noroot" : "fail");
             }
         })
         .setNegativeButton(getString(R.string.main_activity_cancel), new DialogInterface.OnClickListener() {
@@ -1009,10 +1009,10 @@ public class MainActivity extends Activity {
         return dialog;
    	}
    	
-   	void startGooglePlayMeshclient() {
+   	void startGooglePlayMeshclient(String content) {
    	    Log.d(MSG_TAG, "startGooglePlayMeshclient()");
         Intent meshclientInstall = new Intent(Intent.ACTION_VIEW)
-            .setData(Uri.parse(TetherApplication.MESHCLIENT_GOOGLE_PLAY_URL));
+            .setData(Uri.parse(TetherApplication.MESHCLIENT_GOOGLE_PLAY_URL + content));
         startActivity(meshclientInstall);
    	}
    	
