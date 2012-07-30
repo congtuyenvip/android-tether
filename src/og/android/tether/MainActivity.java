@@ -243,7 +243,7 @@ public class MainActivity extends Activity {
        
         // Check root-permission, files
         if (!this.application.coretask.hasRootPermission())
-                openLaunchedDialog();
+                openLaunchedDialog(true);
         
         this.rssReader = new RSSReader(getApplicationContext(), TetherApplication.FORUM_RSS_URL);
         this.rssView = (ListView)findViewById(R.id.RSSView);
@@ -433,7 +433,7 @@ public class MainActivity extends Activity {
 		try {
 		    if (getIntent().getData().getPath().equals("/LAUNCH_CHECK")) {
 		        setIntent(null);
-		        openLaunchedDialog();
+		        openLaunchedDialog(false);
 		    }
 		} catch (Exception e) {}
 		
@@ -878,52 +878,6 @@ public class MainActivity extends Activity {
         .show();
    	}
    	
-   	synchronized void openNotRootDialog(final boolean launched) {
-   	    if (this.application.settings.getBoolean("notrootdialogshown", false))
-   	        return;
-   	    
-		LayoutInflater li = LayoutInflater.from(this);
-        View view = li.inflate(R.layout.norootview, null); 
-		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
-        .setTitle(getString(R.string.main_activity_notroot))
-        .setView(view);
-		
-		if (launched) {
-		    builder.setIcon(R.drawable.og_app_icon);
-		    builder.setTitle(getString(R.string.dialog_launched_title));
-            ((TextView)view.findViewById(R.id.noroottext1)).setText(getString(R.string.dialog_launched_text));
-            ((TextView)view.findViewById(R.id.noroottext2)).setText("");
-		    builder.setPositiveButton(getString(R.string.main_activity_ok), new DialogInterface.OnClickListener() {
-		        public void onClick(DialogInterface dialog, int whichButton) {
-		            startGooglePlayMeshclient();
-		        }
-		    })
-	        .setNeutralButton(getString(R.string.main_activity_cancel), new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    Log.d(MSG_TAG, "Ignore pressed");
-                    MainActivity.this.application.installFiles();
-                    MainActivity.this.application.displayToastMessage("Ignoring, note that this application will NOT work correctly.");
-                }
-	        });
-		} else {
-		    builder.setNegativeButton(getString(R.string.main_activity_exit), new DialogInterface.OnClickListener() {
-		        public void onClick(DialogInterface dialog, int whichButton) {
-		            Log.d(MSG_TAG, "Exit pressed");
-		            MainActivity.this.finish();
-		        }
-		    })
-		    .setNeutralButton(getString(R.string.main_activity_ignore), new DialogInterface.OnClickListener() {
-		        public void onClick(DialogInterface dialog, int whichButton) {
-		            Log.d(MSG_TAG, "Ignore pressed");
-		            MainActivity.this.application.installFiles();
-		            MainActivity.this.application.displayToastMessage("Ignoring, note that this application will NOT work correctly.");
-		        }
-		    });
-		}
-        builder.show();
-        this.application.settings.edit().putBoolean("notrootdialogshown", true).commit();
-   	}
-   
    	private void openAboutDialog() {
 		LayoutInflater li = LayoutInflater.from(this);
         View view = li.inflate(R.layout.aboutview, null); 
@@ -1024,9 +978,9 @@ public class MainActivity extends Activity {
         dialog.show();
    	}
 
-   	public Dialog openLaunchedDialog() {
+   	public Dialog openLaunchedDialog(boolean noroot) {
         Dialog dialog = new AlertDialog.Builder(this)
-        .setMessage(R.string.dialog_launched_text)
+        .setMessage(noroot ? R.string.dialog_noroot_text : R.string.dialog_launched_text)
         .setTitle(getString(R.string.dialog_launched_title))
         .setIcon(R.drawable.og_app_icon)
         .setCancelable(false)
