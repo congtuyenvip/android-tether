@@ -1156,6 +1156,8 @@ public class TetherApplication extends Application {
 		h.put("widg", settings.getInt("widget_clicks", 0));
 		h.put("comc", settings.getInt("community_clicks", 0));
 		h.put("rssc", settings.getInt("rss_clicks", 0));
+		h.put("devi", settings.getString("devicepref", SetupActivity.DEFAULT_DEVICE));
+		h.put("setu", settings.getString("setuppref", SetupActivity.DEFAULT_SETUP));
 
 		if(status == -2) {
 		    Log.d(MSG_TAG, "Reporting stats: " + h.toString());
