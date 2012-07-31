@@ -283,7 +283,7 @@ public class TetherService extends Service {
     		Log.d(MSG_TAG, "Service started: " + started + ", state: " + TetherService.this.serviceState);
     		sendBroadcastState(TetherService.this.serviceState);
 
-    		if (!started || TetherService.this.serviceState != STATE_RUNNING &&
+    		if ( (!started || (TetherService.this.serviceState != STATE_RUNNING && !TetherApplication.singleton.onlyEncryptionOrNothingFailed()))  &&
     		        !TetherApplication.singleton.offeredMeshclient) {
     		    TetherApplication.singleton.openLaunchedDialog();
     		    TetherApplication.singleton.offeredMeshclient = true;

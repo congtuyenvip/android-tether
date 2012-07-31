@@ -13,9 +13,11 @@
 package og.android.tether;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -1396,4 +1398,54 @@ public class TetherApplication extends Application {
             .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(launchDialog);
     }
+    
+    String readLogfile() {
+        FileInputStream fis = null;
+        InputStreamReader isr = null;
+        String data = "";
+        try{
+                 File file = new File(this.coretask.DATA_FILE_PATH+"/var/tether.log");
+                 fis = new FileInputStream(file);
+                 isr = new InputStreamReader(fis, "utf-8");
+                 char[] buff = new char[(int) file.length()];
+                 isr.read(buff);
+                 data = new String(buff);
+         }
+         catch (Exception e) {      
+             displayToastMessage(getString(R.string.log_activity_nologfile));
+         }
+         finally {
+             try {
+                 if (isr != null)
+                     isr.close();
+                 if (fis != null)
+                     fis.close();
+             } catch (Exception e) {
+                 // nothing
+             }
+         }
+         return data;
+    }
+    
+    boolean onlyEncryptionOrNothingFailed() {
+        Log.d(MSG_TAG, "onlyEncryptionOrNothingFailed()");
+        String log = readLogfile();
+        if (log == null)
+            return true;
+        log = log.toLowerCase();
+        int encryptionIndex = log.indexOf("encryption");
+        int nextFailedIndex = log.indexOf(">failed<");
+        if ( (encryptionIndex == -1 && nextFailedIndex != -1) || nextFailedIndex < encryptionIndex) {
+            return false;
+        }
+        
+        nextFailedIndex = log.indexOf(">failed<", encryptionIndex);
+        int nextDoneIndex = log.indexOf(">done<", encryptionIndex);
+        if (nextFailedIndex < nextDoneIndex || nextDoneIndex == -1) {
+            return log.indexOf(">failed<", nextFailedIndex + 1) == -1;
+        }
+        
+        return false;
+    }
+    
 }

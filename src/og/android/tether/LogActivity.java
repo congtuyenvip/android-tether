@@ -61,34 +61,7 @@ public class LogActivity extends Activity {
     }
 	
     private void setWebViewContent() {
-    	this.webView.loadDataWithBaseURL("fake://fakeme",HEADER+this.readLogfile()+FOOTER , "text/html", "UTF-8", "fake://fakeme");
+    	this.webView.loadDataWithBaseURL("fake://fakeme",HEADER+this.application.readLogfile()+FOOTER , "text/html", "UTF-8", "fake://fakeme");
     }
     
-    private String readLogfile(){
-        FileInputStream fis = null;
-        InputStreamReader isr = null;
-        String data = "";
-        try{
-	             File file = new File(application.coretask.DATA_FILE_PATH+"/var/tether.log");
-                 fis = new FileInputStream(file);
-                 isr = new InputStreamReader(fis, "utf-8");
-                 char[] buff = new char[(int) file.length()];
-                 isr.read(buff);
-                 data = new String(buff);
-         }
-         catch (Exception e) {      
-        	 this.application.displayToastMessage(getString(R.string.log_activity_nologfile));
-         }
-         finally {
-        	 try {
-        		 if (isr != null)
-        			 isr.close();
-        		 if (fis != null)
-        			 fis.close();
-        	 } catch (Exception e) {
-        		 // nothing
-        	 }
-         }
-         return data;
-    }
 }
