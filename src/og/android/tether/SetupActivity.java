@@ -100,13 +100,6 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 			PreferenceGroup securityGroup = (PreferenceGroup)findPreference("securityprefs");
 			securityGroup.setEnabled(false);
         }
-        
-        // Disable "Transmit power" if not supported
-        if (!this.application.isTransmitPowerSupported()) {
-        	PreferenceGroup wifiGroup = (PreferenceGroup)findPreference("wifiprefs");
-        	ListPreference txpowerPreference = (ListPreference)findPreference("txpowerpref");
-        	wifiGroup.removePreference(txpowerPreference);
-        }
 
         // Disable Bluetooth-tethering if not supported by the kernel
         if (Configuration.hasKernelFeature("CONFIG_BT_BNEP=") == false) {
