@@ -502,6 +502,7 @@ public class TetherApplication extends Application {
         
         boolean encEnabled = this.settings.getBoolean("encpref", false);
         boolean acEnabled = this.settings.getBoolean("acpref", false);
+        boolean bluetoothPref = this.settings.getBoolean("bluetoothon", false);
         String ssid = this.settings.getString("ssidpref", DEFAULT_SSID);
         String txpower = this.settings.getString("txpowerpref", "disabled");
         String lannetwork = this.settings.getString("lannetworkpref", DEFAULT_LANNETWORK);
@@ -531,6 +532,7 @@ public class TetherApplication extends Application {
         String subnet = lannetwork.substring(0, lannetwork.lastIndexOf("."));
         //this.tethercfg.read();
         this.tethercfg.put("og.configuration", "adv");
+        this.tethercfg.put("tether.mode", bluetoothPref ? "bt" : "wifi");
         this.tethercfg.put("device.type", configurationAdv.getDevice());
         this.tethercfg.put("wifi.essid", ssid);
         this.tethercfg.put("wifi.channel", channel);
