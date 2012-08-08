@@ -39,7 +39,8 @@ public class TetherService extends Service {
 	public static final int STATE_IDLE         = 11;
 	public static final int STATE_RESTARTING   = 9;
 	
-	public static final int STATE_FAIL_EXEC    = 2;
+	public static final int STATE_FAIL_EXEC_START    = 2;
+	public static final int STATE_FAIL_EXEC_STOP    = 7;
 	public static final int STATE_FAIL_LOG     = 1;
 	
 	public static final String INTENT_STATE 		= "og.android.tether.intent.STATE";
@@ -253,7 +254,7 @@ public class TetherService extends Service {
 				// Acquire Wakelock
 	    			TetherService.this.application.acquireWakeLock();						
     			} else
-    				TetherService.this.serviceState = STATE_FAIL_EXEC;
+    				TetherService.this.serviceState = STATE_FAIL_EXEC_START;
     		} else
     			started = true;
     		
@@ -294,7 +295,7 @@ public class TetherService extends Service {
 
     		String message;
     		switch(TetherService.this.serviceState) {
-    		case TetherService.STATE_FAIL_EXEC :
+    		case TetherService.STATE_FAIL_EXEC_START :
     			message = getString(R.string.main_activity_start_unable);
     			break;
     		case TetherService.STATE_FAIL_LOG :
@@ -332,7 +333,7 @@ public class TetherService extends Service {
     		boolean stopped = TetherService.this.application.coretask.runRootCommand(
     				TetherService.this.application.coretask.DATA_FILE_PATH + tetherCommand);
     		if(!stopped)
-    			TetherService.this.serviceState = STATE_FAIL_EXEC;
+    			TetherService.this.serviceState = STATE_FAIL_EXEC_STOP;
     		else
     			TetherService.this.serviceState = STATE_IDLE;
     		
@@ -399,7 +400,7 @@ public class TetherService extends Service {
     		new Thread(new Runnable() { public void run() {
     		boolean status = TetherService.this.application.coretask.runRootCommand(
     				TetherService.this.application.coretask.DATA_FILE_PATH + tetherStopCommand);
-    		if(!status) TetherService.this.serviceState = STATE_FAIL_EXEC;
+    		if(!status) TetherService.this.serviceState = STATE_FAIL_EXEC_STOP;
     		
     		TetherService.this.application.notificationManager.cancelAll();
     		TetherService.this.trafficCounterEnable(false);
@@ -437,7 +438,7 @@ public class TetherService extends Service {
         			TetherService.this.trafficCounterEnable(true);
         			TetherService.this.serviceState = STATE_RUNNING;
         		} else
-        			TetherService.this.serviceState = STATE_FAIL_EXEC;
+        			TetherService.this.serviceState = STATE_FAIL_EXEC_START;
         }
         
         if(status) {
