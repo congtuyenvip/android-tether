@@ -611,13 +611,19 @@ public class MainActivity extends Activity {
             	 			MainActivity.this.application.displayToastMessage(getString(R.string.main_activity_start_errors));
             	 			MainActivity.this.toggleStartStop();
             	 			break;
-            	 		case TetherService.STATE_FAIL_EXEC :
+            	 		case TetherService.STATE_FAIL_EXEC_START :
             	 			try { MainActivity.this.dismissDialog(MainActivity.ID_DIALOG_STARTING); }
             	 			catch(Exception e) {}
             	 			MainActivity.this.application.displayToastMessage(getString(R.string.main_activity_start_unable));
             	 			MainActivity.this.toggleStartStop();
             	 			break;
-            	 		}
+            	 		case TetherService.STATE_FAIL_EXEC_STOP :
+                            try { MainActivity.this.dismissDialog(MainActivity.ID_DIALOG_STOPPING); }
+                            catch(Exception e) {}
+                            //MainActivity.this.application.displayToastMessage(getString(R.string.main_activity_start_unable));
+                            MainActivity.this.toggleStartStop();
+                            break;
+                        }
             	 		
             	 		} catch(Exception e) { }
             	 		finally {

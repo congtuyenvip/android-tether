@@ -44,7 +44,8 @@ public class TetherServiceReceiver extends BroadcastReceiver {
 		    int serviceState = intentArg.getIntExtra("state", -9);
 		    switch(serviceState) {
 		    case TetherService.STATE_RUNNING :
-		    case TetherService.STATE_FAIL_EXEC :
+		    case TetherService.STATE_FAIL_EXEC_START :
+		    case TetherService.STATE_FAIL_EXEC_STOP :
 		    case TetherService.STATE_FAIL_LOG :
 		    case TetherService.STATE_IDLE :
 		        break;
