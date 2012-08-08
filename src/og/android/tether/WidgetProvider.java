@@ -96,7 +96,8 @@ public class WidgetProvider extends AppWidgetProvider {
     			remoteViews.setImageViewResource(R.id.button, R.drawable.widgeton);
     			break;
     		case TetherService.STATE_IDLE :
-    		case TetherService.STATE_FAIL_EXEC :
+    		case TetherService.STATE_FAIL_EXEC_START :
+    		case TetherService.STATE_FAIL_EXEC_STOP :
     			//Log.d("!!!WidgetAnimator!!!", " view: " + remoteViews);   			
     			remoteViews.setImageViewResource(R.id.button, R.drawable.widgetoff);
     			break;

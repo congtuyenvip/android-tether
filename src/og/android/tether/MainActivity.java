@@ -620,7 +620,6 @@ public class MainActivity extends Activity {
             	 		case TetherService.STATE_FAIL_EXEC_STOP :
                             try { MainActivity.this.dismissDialog(MainActivity.ID_DIALOG_STOPPING); }
                             catch(Exception e) {}
-                            //MainActivity.this.application.displayToastMessage(getString(R.string.main_activity_start_unable));
                             MainActivity.this.toggleStartStop();
                             break;
                         }
@@ -807,7 +806,8 @@ public class MainActivity extends Activity {
     			(TetherService.singleton.getState() == TetherService.STATE_IDLE) ||
     			(TetherService.singleton.getState() == TetherService.STATE_STARTING) ||
     			(TetherService.singleton.getState() == TetherService.STATE_RESTARTING) ||
-    			(TetherService.singleton.getState() == TetherService.STATE_FAIL_EXEC)) {
+    			(TetherService.singleton.getState() == TetherService.STATE_FAIL_EXEC_START) ||
+    			(TetherService.singleton.getState() == TetherService.STATE_FAIL_EXEC_STOP)) {
     		Log.d(MSG_TAG, "TOGGLE: STOPPED");
     		this.startTblRow.setVisibility(View.VISIBLE);
     		this.stopTblRow.setVisibility(View.GONE);
