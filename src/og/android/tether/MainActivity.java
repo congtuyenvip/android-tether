@@ -193,7 +193,7 @@ public class MainActivity extends Activity {
             }
         }
 
-        this.application.reportStats(-1);
+        this.application.reportStats(-1, false);
         
         // Startup-Check
         if (this.application.startupCheckPerformed == false) {

@@ -1053,7 +1053,7 @@ public class TetherApplication extends Application {
         }
     }
 
-    public void reportStats(int status) {
+    public void reportStats(int status, boolean synchronous) {
         final HashMap<String,Object> h = new HashMap<String,Object>();
         String aid = null;
         try {
@@ -1164,7 +1164,7 @@ public class TetherApplication extends Application {
 		h.put("setu", settings.getString("setuppref", SetupActivity.DEFAULT_SETUP));
 		h.put("pkg", getPackageName());
 
-		if(status == -2) {
+		if (synchronous) {
 		    Log.d(MSG_TAG, "Reporting stats: " + h.toString());
 		    WebserviceTask.report(APPLICATION_STATS_URL, h);
 		    Log.d(MSG_TAG, "Reporting of stats complete");		    

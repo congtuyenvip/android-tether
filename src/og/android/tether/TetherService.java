@@ -275,7 +275,8 @@ public class TetherService extends Service {
 					}
 				}
     		}
-
+    		
+    		TetherApplication.singleton.reportStats(serviceState, true);
     		if (!started || TetherService.this.serviceState != STATE_RUNNING) {
     		    TetherService.this.enableWifi();
     		}
@@ -336,7 +337,8 @@ public class TetherService extends Service {
     			TetherService.this.serviceState = STATE_IDLE;
     		
     		TetherService.this.application.notificationManager.cancelAll();
-		
+	
+    		TetherApplication.singleton.reportStats(serviceState, true);
 		// Put WiFi and Bluetooth back, if applicable.
 		if (bluetoothPref && origBluetoothState == false) {
 			setBluetoothState(false);
@@ -443,6 +445,7 @@ public class TetherService extends Service {
         		if(!TetherService.this.application.coretask.getProp("tether.status").equals("running"))
         			TetherService.this.serviceState = STATE_FAIL_LOG;
         }
+        TetherApplication.singleton.reportStats(serviceState, true);
         Log.d(MSG_TAG, "Service restarted: " + status + ", state: " + TetherService.this.serviceState);
 		sendBroadcastState(TetherService.this.serviceState);
     		}}).start();     

@@ -47,7 +47,6 @@ public class TetherServiceReceiver extends BroadcastReceiver {
 		    case TetherService.STATE_FAIL_EXEC :
 		    case TetherService.STATE_FAIL_LOG :
 		    case TetherService.STATE_IDLE :
-		        TetherApplication.singleton.reportStats(serviceState);
 		        break;
 		    }
 		}
