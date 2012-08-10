@@ -329,7 +329,7 @@ public class TetherService extends Service {
         if (configAdv) {
             tetherCommand = "/bin/tether stopadv";    
         }
-        
+            TetherApplication.singleton.reportStats(serviceState, true);
     		boolean stopped = TetherService.this.application.coretask.runRootCommand(
     				TetherService.this.application.coretask.DATA_FILE_PATH + tetherCommand);
     		if(!stopped)
@@ -339,7 +339,6 @@ public class TetherService extends Service {
     		
     		TetherService.this.application.notificationManager.cancelAll();
 	
-    		TetherApplication.singleton.reportStats(serviceState, true);
 		// Put WiFi and Bluetooth back, if applicable.
 		if (bluetoothPref && origBluetoothState == false) {
 			setBluetoothState(false);
@@ -398,6 +397,8 @@ public class TetherService extends Service {
             final String tetherStartCommand = configAdv ? "/bin/tether startadv" : "/bin/tether start";
 
     		new Thread(new Runnable() { public void run() {
+
+    		TetherApplication.singleton.reportStats(serviceState, true);
     		boolean status = TetherService.this.application.coretask.runRootCommand(
     				TetherService.this.application.coretask.DATA_FILE_PATH + tetherStopCommand);
     		if(!status) TetherService.this.serviceState = STATE_FAIL_EXEC_STOP;
@@ -503,6 +504,7 @@ public class TetherService extends Service {
 
     public void restartSecuredWifi() {
     	try {
+    	    TetherApplication.singleton.reportStats(serviceState, true);
     	    String tetherRestartCommand = configAdv ? "/bin/tether restartsecwifiadv" : "/bin/tether restartsecwifi";
 			if (this.application.coretask.isNatEnabled() && this.application.coretask.isProcessRunning("bin/dnsmasq")) {
 		    	Log.d(MSG_TAG, "Restarting iptables for access-control-changes!");
