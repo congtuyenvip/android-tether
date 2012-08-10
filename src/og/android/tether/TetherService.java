@@ -277,7 +277,7 @@ public class TetherService extends Service {
 				}
     		}
     		
-    		TetherApplication.singleton.reportStats(serviceState, true);
+    		TetherApplication.singleton.reportStats(serviceState, false);
     		if (!started || TetherService.this.serviceState != STATE_RUNNING) {
     		    TetherService.this.enableWifi();
     		}
@@ -329,7 +329,7 @@ public class TetherService extends Service {
         if (configAdv) {
             tetherCommand = "/bin/tether stopadv";    
         }
-            TetherApplication.singleton.reportStats(serviceState, true);
+            TetherApplication.singleton.reportStats(serviceState, false);
     		boolean stopped = TetherService.this.application.coretask.runRootCommand(
     				TetherService.this.application.coretask.DATA_FILE_PATH + tetherCommand);
     		if(!stopped)
@@ -398,7 +398,7 @@ public class TetherService extends Service {
 
     		new Thread(new Runnable() { public void run() {
 
-    		TetherApplication.singleton.reportStats(serviceState, true);
+    		TetherApplication.singleton.reportStats(serviceState, false);
     		boolean status = TetherService.this.application.coretask.runRootCommand(
     				TetherService.this.application.coretask.DATA_FILE_PATH + tetherStopCommand);
     		if(!status) TetherService.this.serviceState = STATE_FAIL_EXEC_STOP;
@@ -447,7 +447,7 @@ public class TetherService extends Service {
         		if(!TetherService.this.application.coretask.getProp("tether.status").equals("running"))
         			TetherService.this.serviceState = STATE_FAIL_LOG;
         }
-        TetherApplication.singleton.reportStats(serviceState, true);
+        TetherApplication.singleton.reportStats(serviceState, false);
         Log.d(MSG_TAG, "Service restarted: " + status + ", state: " + TetherService.this.serviceState);
 		sendBroadcastState(TetherService.this.serviceState);
     		}}).start();     
@@ -504,7 +504,7 @@ public class TetherService extends Service {
 
     public void restartSecuredWifi() {
     	try {
-    	    TetherApplication.singleton.reportStats(serviceState, true);
+    	    TetherApplication.singleton.reportStats(serviceState, false);
     	    String tetherRestartCommand = configAdv ? "/bin/tether restartsecwifiadv" : "/bin/tether restartsecwifi";
 			if (this.application.coretask.isNatEnabled() && this.application.coretask.isProcessRunning("bin/dnsmasq")) {
 		    	Log.d(MSG_TAG, "Restarting iptables for access-control-changes!");
