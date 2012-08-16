@@ -1053,8 +1053,8 @@ public class TetherApplication extends Application {
         }
     }
 
-    public HashMap<String, Object> prepareStatsBundle(int status) {
-    	final HashMap<String,Object> h = new HashMap<String,Object>();
+    public void reportStats(int status, boolean synchronous) {
+        final HashMap<String,Object> h = new HashMap<String,Object>();
         String aid = null;
         try {
             aid = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -1163,24 +1163,17 @@ public class TetherApplication extends Application {
 		h.put("devi", settings.getString("devicepref", SetupActivity.DEFAULT_DEVICE));
 		h.put("setu", settings.getString("setuppref", SetupActivity.DEFAULT_SETUP));
 		h.put("pkg", getPackageName());
-		return h;
-    }
-    
-    public void reportStats(int status, boolean synchronous) {
-    	reportStats(prepareStatsBundle(status), synchronous);
-    }
-        
-    public void reportStats(final HashMap<String, Object> statsBundle, boolean synchronous) {
+
 		if (synchronous) {
-		    Log.d(MSG_TAG, "Reporting stats: " + statsBundle.toString());
-		    WebserviceTask.report(APPLICATION_STATS_URL, statsBundle);
+		    Log.d(MSG_TAG, "Reporting stats: " + h.toString());
+		    WebserviceTask.report(APPLICATION_STATS_URL, h);
 		    Log.d(MSG_TAG, "Reporting of stats complete");		    
 		} else {
 		    new Thread(new Runnable(){
 		        public void run(){
 		            Looper.prepare();
-		            Log.d(MSG_TAG, "Reporting stats: " + statsBundle.toString());
-		            WebserviceTask.report(APPLICATION_STATS_URL, statsBundle);
+		            Log.d(MSG_TAG, "Reporting stats: " + h.toString());
+		            WebserviceTask.report(APPLICATION_STATS_URL, h);
 		            Log.d(MSG_TAG, "Reporting of stats complete");
 		            Looper.loop();
 		        }
