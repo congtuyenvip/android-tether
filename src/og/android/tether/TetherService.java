@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 
 public class TetherService extends Service {
@@ -329,7 +330,7 @@ public class TetherService extends Service {
         if (configAdv) {
             tetherCommand = "/bin/tether stopadv";    
         }
-            TetherApplication.singleton.reportStats(serviceState, false);
+            HashMap<String, Object> statsBundle = TetherApplication.singleton.prepareStatsBundle(0);
     		boolean stopped = TetherService.this.application.coretask.runRootCommand(
     				TetherService.this.application.coretask.DATA_FILE_PATH + tetherCommand);
     		if(!stopped)
@@ -337,6 +338,8 @@ public class TetherService extends Service {
     		else
     			TetherService.this.serviceState = STATE_IDLE;
     		
+    		statsBundle.put("stat", serviceState);
+    		TetherApplication.singleton.reportStats(statsBundle, false);
     		TetherService.this.application.notificationManager.cancelAll();
 	
 		// Put WiFi and Bluetooth back, if applicable.
@@ -398,11 +401,16 @@ public class TetherService extends Service {
 
     		new Thread(new Runnable() { public void run() {
 
-    		TetherApplication.singleton.reportStats(serviceState, false);
+    		HashMap<String, Object> statsBundle = TetherApplication.singleton.prepareStatsBundle(0);
     		boolean status = TetherService.this.application.coretask.runRootCommand(
     				TetherService.this.application.coretask.DATA_FILE_PATH + tetherStopCommand);
-    		if(!status) TetherService.this.serviceState = STATE_FAIL_EXEC_STOP;
+    		if (!status)
+    			TetherService.this.serviceState = STATE_FAIL_EXEC_STOP;
+    		else 
+    			TetherService.this.serviceState = STATE_IDLE;
     		
+    		statsBundle.put("stat", serviceState);
+    		TetherApplication.singleton.reportStats(statsBundle, false);
     		TetherService.this.application.notificationManager.cancelAll();
     		TetherService.this.trafficCounterEnable(false);
     	
