@@ -329,7 +329,7 @@ public class TetherService extends Service {
         if (configAdv) {
             tetherCommand = "/bin/tether stopadv";    
         }
-            TetherApplication.singleton.reportStats(serviceState, false);
+            TetherApplication.singleton.reportStats(STATE_IDLE, false);
     		boolean stopped = TetherService.this.application.coretask.runRootCommand(
     				TetherService.this.application.coretask.DATA_FILE_PATH + tetherCommand);
     		if(!stopped)
@@ -398,7 +398,7 @@ public class TetherService extends Service {
 
     		new Thread(new Runnable() { public void run() {
 
-    		TetherApplication.singleton.reportStats(serviceState, false);
+    		TetherApplication.singleton.reportStats(STATE_IDLE, false);
     		boolean status = TetherService.this.application.coretask.runRootCommand(
     				TetherService.this.application.coretask.DATA_FILE_PATH + tetherStopCommand);
     		if(!status) TetherService.this.serviceState = STATE_FAIL_EXEC_STOP;
