@@ -315,6 +315,8 @@ public class TetherService extends Service {
     		
     		new Thread(new Runnable() { public void run() {
     			
+    		TetherApplication.singleton.reportStats(STATE_IDLE, false);
+
 		// Disabling polling-threads
     		TetherService.this.trafficCounterEnable(false);
     		TetherService.this.dnsUpdateEnable(false);
@@ -329,7 +331,6 @@ public class TetherService extends Service {
         if (configAdv) {
             tetherCommand = "/bin/tether stopadv";    
         }
-            TetherApplication.singleton.reportStats(STATE_IDLE, false);
     		boolean stopped = TetherService.this.application.coretask.runRootCommand(
     				TetherService.this.application.coretask.DATA_FILE_PATH + tetherCommand);
     		if(!stopped)
