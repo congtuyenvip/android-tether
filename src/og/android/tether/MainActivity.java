@@ -780,21 +780,6 @@ public class MainActivity extends Activity {
     		if (this.animation != null)
     			this.stopBtn.startAnimation(this.animation);
 
-            // Checking, if "wired tether" is currently running
-            String tetherMode = this.application.coretask.getProp("tether.mode");
-            String tetherStatus = this.application.coretask.getProp("tether.status");
-            if (tetherStatus.equals("running")) {
-            	if (!(tetherMode.equals("wifi") == true || tetherMode.equals("bt") == true)) {
-            		MainActivity.this.application.displayToastMessage(getString(R.string.main_activity_start_wiredtethering_running));
-            	}
-            }
-            
-            // Checking, if cyanogens usb-tether is currently running
-            tetherStatus = this.application.coretask.getProp("tethering.enabled");
-            if  (tetherStatus.equals("1")) {
-            	MainActivity.this.application.displayToastMessage(getString(R.string.main_activity_start_usbtethering_running));
-            }
-
     		this.application.showStartNotification(getString(R.string.global_application_tethering_running));
     		
 			// Check, if the lockbutton should be displayed
