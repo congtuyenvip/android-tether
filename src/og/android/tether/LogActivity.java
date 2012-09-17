@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 
+import com.google.analytics.tracking.android.TrackedActivity;
+
 import og.android.tether.R;
 
 import android.app.Activity;
@@ -23,7 +25,7 @@ import android.os.Bundle;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
-public class LogActivity extends Activity {
+public class LogActivity extends TrackedActivity {
 
 	public static final String MSG_TAG = "TETHER -> AccessControlActivity";
 	

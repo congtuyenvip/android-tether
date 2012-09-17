@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import com.google.analytics.tracking.android.TrackedListActivity;
+
 import og.android.tether.R;
 import og.android.tether.data.ClientData;
 import og.android.tether.data.ClientAdapter;
@@ -39,7 +41,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-public class AccessControlActivity extends ListActivity {
+public class AccessControlActivity extends TrackedListActivity {
 	
 	private TetherApplication application = null;
 	
