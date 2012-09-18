@@ -184,7 +184,7 @@
 	<string name="dialog_launched_title">Install Open Garden</string>
 	<string name="dialog_launched_text">Tethering failed to start. This app may not run on your phone, but our new app probably will. We can install it right now.\n\nOn the next screen, tap \"Download\"</string>
 	<string name="dialog_noroot_text">Device not rooted. This app can\'t run on your phone, but our new app probably will. We can install it right now.\n\nOn the next screen, tap \"Download\"</string>
-	<string name="anchor_link">Non-root Tether</string>
+	<string name="anchor_link">Mesh Networking</string>
 
     <string-array name="notificationmodenames">  
 		<item>None</item>  
