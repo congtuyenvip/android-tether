@@ -61,7 +61,6 @@ import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.google.analytics.tracking.android.TrackedActivity;
 import com.google.android.c2dm.C2DMessaging;
 
 import org.json.JSONArray;
@@ -72,7 +71,7 @@ import org.miscwidgets.widget.Panel;
 import org.miscwidgets.widget.Panel.OnPanelListener;
 
 
-public class MainActivity extends TrackedActivity {
+public class MainActivity extends Activity {
 	
 	private TetherApplication application = null;
 	private ProgressDialog progressDialog;
@@ -243,11 +242,9 @@ public class MainActivity extends TrackedActivity {
         }
        
         // Check root-permission, files
-        /*
         if (!this.application.coretask.hasRootPermission())
                 openLaunchedDialog(true);
-        */
-
+        
         this.rssReader = new RSSReader(getApplicationContext(), TetherApplication.FORUM_RSS_URL);
         this.rssView = (ListView)findViewById(R.id.RSSView);
         this.rssAdapter = new ArrayAdapter<Spanned>(this, R.layout.rss_item);
@@ -436,7 +433,7 @@ public class MainActivity extends TrackedActivity {
 		try {
 		    if (getIntent().getData().getPath().equals("/LAUNCH_CHECK")) {
 		        setIntent(null);
-		        //openLaunchedDialog(false);
+		        openLaunchedDialog(false);
 		    }
 		} catch (Exception e) {}
 		
@@ -972,7 +969,6 @@ public class MainActivity extends TrackedActivity {
         dialog.show();
    	}
 
-   	/*
    	public Dialog openLaunchedDialog(final boolean noroot) {
         Dialog dialog = new AlertDialog.Builder(this)
         .setMessage(noroot ? R.string.dialog_noroot_text : R.string.dialog_launched_text)
@@ -1003,8 +999,7 @@ public class MainActivity extends TrackedActivity {
         dialog.show();
         return dialog;
    	}
-   	*/
-
+   	
    	void startGooglePlayMeshclient(String content) {
    	    Log.d(MSG_TAG, "startGooglePlayMeshclient()");
         Intent meshclientInstall = new Intent(Intent.ACTION_VIEW)

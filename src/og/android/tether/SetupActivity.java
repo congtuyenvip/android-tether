@@ -15,8 +15,6 @@ package og.android.tether;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.google.analytics.tracking.android.EasyTracker;
-
 import og.android.tether.system.Configuration;
 
 import android.R.drawable;
@@ -137,17 +135,6 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 		SetupActivity.this.setWifiPrefsEnableHandler.sendMessage(msg);
     }
 	
-    @Override
-    public void onStart() {
-      super.onStart();
-      EasyTracker.getInstance().activityStart(this);
-    }
-
-    @Override
-    public void onStop() {
-      super.onStop();
-      EasyTracker.getInstance().activityStop(this);
-    }
     
     private void updateSettingsMenu() {
         Resources resources = getResources();

@@ -1,7 +1,5 @@
 package og.android.tether;
 
-import com.google.analytics.tracking.android.TrackedActivity;
-
 import android.R.drawable;
 import android.app.Activity;
 import android.content.Context;
@@ -20,7 +18,7 @@ import android.widget.EditText;
 
 import og.android.tether.OnPostCompleteListener;
 
-public class PostActivity extends TrackedActivity {
+public class PostActivity extends Activity {
     
     private static final String TAG = "PostActivity";
     

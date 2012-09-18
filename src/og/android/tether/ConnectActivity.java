@@ -1,7 +1,5 @@
 package og.android.tether;
 
-import com.google.analytics.tracking.android.TrackedActivity;
-
 import android.R.drawable;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -21,7 +19,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class ConnectActivity extends TrackedActivity {
+public class ConnectActivity extends Activity {
     
     private static final String TAG = "ConnectActivity";
     
