@@ -445,6 +445,7 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
     };
     
     private void updateConfiguration(final SharedPreferences sharedPreferences, final String key) {
+        EasyTracker.getTracker().trackEvent("ui_action", "preference", key, 0L);
     	new Thread(new Runnable(){
 			public void run(){
 				Looper.prepare();
