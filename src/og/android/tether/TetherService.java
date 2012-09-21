@@ -24,6 +24,8 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import com.google.analytics.tracking.android.EasyTracker;
+
 public class TetherService extends Service {
 	
 	public static final String MSG_TAG = "TETHER -> TetherService";
@@ -243,6 +245,7 @@ public class TetherService extends Service {
     		}
     		
     		TetherApplication.singleton.reportStats(serviceState, false);
+    		EasyTracker.getTracker().trackEvent("ui_action", "tether", "start", 0L);
     		if (!started || TetherService.this.serviceState != STATE_RUNNING) {
     		    TetherService.this.enableWifi();
     		}
@@ -281,6 +284,15 @@ public class TetherService extends Service {
     		new Thread(new Runnable() { public void run() {
     			
     		TetherApplication.singleton.reportStats(STATE_IDLE, false);
+            long bytes = 0;
+            try {
+                String tetherNetworkDevice = TetherApplication.singleton.getTetherNetworkDevice();
+                long [] trafficCount = TetherApplication.singleton.coretask.getDataTraffic(tetherNetworkDevice);
+                bytes += trafficCount[0];
+                bytes += trafficCount[1];
+            } catch (UnsatisfiedLinkError e) {
+            }
+            EasyTracker.getTracker().trackEvent("ui_action", "tether", "stop", bytes);
 
 		// Disabling polling-threads
     		TetherService.this.trafficCounterEnable(false);
