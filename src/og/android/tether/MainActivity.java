@@ -61,6 +61,7 @@ import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.TrackedActivity;
 import com.google.android.c2dm.C2DMessaging;
 
@@ -244,7 +245,7 @@ public class MainActivity extends TrackedActivity {
        
         // Check root-permission, files
         if (!this.application.coretask.hasRootPermission())
-                openLaunchedDialog(true);
+            openLaunchedDialog(true);
 
         this.rssReader = new RSSReader(getApplicationContext(), TetherApplication.FORUM_RSS_URL);
         this.rssView = (ListView)findViewById(R.id.RSSView);
@@ -971,6 +972,8 @@ public class MainActivity extends TrackedActivity {
    	}
 
    	public Dialog openLaunchedDialog(final boolean noroot) {
+        final long value = noroot ? 1 : 0;
+        EasyTracker.getTracker().trackEvent("ui_action", "create_dialog", "meshclient", value);
         Dialog dialog = new AlertDialog.Builder(this)
         .setMessage(noroot ? R.string.dialog_noroot_text : R.string.dialog_launched_text)
         .setTitle(getString(R.string.dialog_launched_title))
@@ -988,12 +991,13 @@ public class MainActivity extends TrackedActivity {
         })
         .setPositiveButton(getString(R.string.main_activity_ok), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
+                EasyTracker.getTracker().trackEvent("ui_action", "button_press", "meshclient_positive", value);
                 startGooglePlayMeshclient(noroot ? "fail_noroot" : "fail");
             }
         })
         .setNegativeButton(getString(R.string.main_activity_cancel), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                
+                EasyTracker.getTracker().trackEvent("ui_action", "button_press", "meshclient_negative", value);
             }
         })
         .create();
