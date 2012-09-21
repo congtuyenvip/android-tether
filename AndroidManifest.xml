@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest android:versionCode="45" android:versionName="2.2.6" package="og.android.tether" xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-sdk android:minSdkVersion="3" />
+    <uses-sdk android:minSdkVersion="5" android:targetSdkVersion="11" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
@@ -12,7 +12,8 @@
         <activity android:name="og.android.tether.MainActivity"
                   android:label="@string/global_application_name"
                   android:configChanges="orientation|keyboardHidden"
-                  android:screenOrientation="portrait" 
+                  android:screenOrientation="portrait"
+                  android:hardwareAccelerated="true"
                   android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -171,41 +171,6 @@ public class TetherService extends Service {
 		sendBroadcast(intent);
 	}
 	
-	
-	void startForegroundCompat(int id, Notification notification) {
-		if(startForeground != null) {
-			startForegroundArgs[0] = Integer.valueOf(id);
-			startForegroundArgs[1] = notification;
-			try {
-				startForeground.invoke(this, startForegroundArgs);
-			} catch(InvocationTargetException e) {
-				Log.w(MSG_TAG, "Unable to invoke startForeground");
-				
-			} catch(IllegalAccessException e) {
-				Log.w(MSG_TAG, "Unable to invoke startForeground");
-			}		
-		} else {
-			setForeground(true);
-			this.application.notificationManager.notify(id, notification);
-		}
-	}
-	
-	void stopForegroundCompat(int id) {
-		if(stopForeground != null) {
-			stopForegroundArgs[0] = Boolean.TRUE;
-			try {
-				stopForeground.invoke(this, stopForegroundArgs);
-			} catch(InvocationTargetException e) {
-				Log.w(MSG_TAG, "Unable to invoke stopForeground");
-			} catch(IllegalAccessException e) {
-				Log.w(MSG_TAG, "Unable to invoke stopForeground");
-			}
-		} else {
-			this.application.notificationManager.cancel(id);
-			setForeground(false);
-		}
-	}
-	
 	// Start/Stop Tethering
     public void startTether() {
 
@@ -306,7 +271,7 @@ public class TetherService extends Service {
     			break;
     		}
     		    
-    		startForegroundCompat(-1, TetherService.this.application.getStartNotification(message));
+    		startForeground(-1, TetherService.this.application.getStartNotification(message));
     }
     
     public void stopTether() {
@@ -355,7 +320,7 @@ public class TetherService extends Service {
           postToFacebook();
 				}}).start();
     	
-    		stopForegroundCompat(-1);
+    		stopForeground(true);
     }
 	
     private void postToFacebook() {
