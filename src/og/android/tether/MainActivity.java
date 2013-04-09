@@ -378,7 +378,7 @@ public class MainActivity extends TrackedActivity {
                         Intent i = new Intent();
                         i.setAction(Intent.ACTION_VIEW);
                         i.addCategory(Intent.CATEGORY_BROWSABLE);
-                        i.setData(Uri.parse("market://details?id=com.opengarden.radiofreenet"));
+                        i.setData(Uri.parse("market://details?id=com.opengarden.radiofreenet&referrer=utm_source%3Dog.android.tether%26utm_medium%3Dandroid%26utm_campaign%3Dbanner%26utm_content%3Dinstall"));
                         startActivity(i);
                         break;
 
