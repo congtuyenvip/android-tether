@@ -28,38 +28,23 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Html;
 import android.text.Spanned;
+import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.SubMenu;
-import android.view.View;
+import android.view.*;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.BounceInterpolator;
 import android.view.animation.ScaleAnimation;
-import android.widget.AdapterView;
+import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.TrackedActivity;
@@ -102,6 +87,7 @@ public class MainActivity extends TrackedActivity {
 	
 	private TableRow startTblRow = null;
 	private TableRow stopTblRow = null;
+
 	
 	private ScaleAnimation animation = null;
 	
@@ -363,9 +349,52 @@ public class MainActivity extends TrackedActivity {
 
 		// Toggles between start and stop screen
 		this.toggleStartStop();
-		
-		
-		
+
+
+        // Add Ad at the bottom of the screen
+
+        LayoutInflater li = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View ad_view = li.inflate(R.layout.ad_view,null);
+
+        final WindowManager wm = getWindowManager();
+        WindowManager.LayoutParams wmParams = new WindowManager.LayoutParams();
+        wmParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        wmParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        wmParams.gravity = Gravity.BOTTOM;
+        wmParams.y = 100;
+        wmParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
+        wmParams.alpha = (float) 0.99;
+        wm.addView(ad_view,wmParams);
+
+        View ad_open = ad_view.findViewById(R.id.ad_open);
+        View ad_close = ad_view.findViewById(R.id.ad_close);
+
+        OnClickListener adListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()){
+                    case R.id.ad_open:
+                        Log.i("debug","ad_open");
+                        Intent i = new Intent();
+                        i.setAction(Intent.ACTION_VIEW);
+                        i.addCategory(Intent.CATEGORY_BROWSABLE);
+                        i.setData(Uri.parse("market://details?id=com.opengarden.radiofreenet"));
+                        startActivity(i);
+                        break;
+
+                    case R.id.ad_close:
+                        Log.i("debug","ad_close");
+                        wm.removeView(ad_view);
+                        break;
+
+                    default:
+                        Log.i("debug","default");
+                        break;
+                }
+            }
+        } ;
+        ad_open.setOnClickListener(adListener);
+        ad_close.setOnClickListener(adListener);
     }
     
     @Override
