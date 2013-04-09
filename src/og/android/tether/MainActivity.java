@@ -374,21 +374,26 @@ public class MainActivity extends TrackedActivity {
             public void onClick(View v) {
                 switch (v.getId()){
                     case R.id.ad_open:
-                        Log.i("debug","ad_open");
+                        Log.i(MSG_TAG, "ad_open");
                         Intent i = new Intent();
                         i.setAction(Intent.ACTION_VIEW);
                         i.addCategory(Intent.CATEGORY_BROWSABLE);
                         i.setData(Uri.parse("market://details?id=com.opengarden.radiofreenet&referrer=utm_source%3Dog.android.tether%26utm_medium%3Dandroid%26utm_campaign%3Dbanner%26utm_content%3Dinstall"));
-                        startActivity(i);
+                        try {
+                            startActivity(i);
+                        } catch (android.content.ActivityNotFoundException e) {
+                            Log.e(MSG_TAG, "", e);
+                            MainActivity.this.application.displayToastMessage(e.toString());
+                        }
                         break;
 
                     case R.id.ad_close:
-                        Log.i("debug","ad_close");
+                        Log.i(MSG_TAG, "ad_close");
                         wm.removeView(ad_view);
                         break;
 
                     default:
-                        Log.i("debug","default");
+                        Log.i(MSG_TAG, "default");
                         break;
                 }
             }
@@ -1036,9 +1041,14 @@ public class MainActivity extends TrackedActivity {
 
    	void startGooglePlayMeshclient(String content) {
    	    Log.d(MSG_TAG, "startGooglePlayMeshclient()");
-        Intent meshclientInstall = new Intent(Intent.ACTION_VIEW)
-            .setData(Uri.parse(TetherApplication.MESHCLIENT_GOOGLE_PLAY_URL + content));
-        startActivity(meshclientInstall);
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(TetherApplication.MESHCLIENT_GOOGLE_PLAY_URL + content));
+        try {
+            startActivity(i);
+        } catch (android.content.ActivityNotFoundException e) {
+            Log.e(MSG_TAG, "", e);
+            MainActivity.this.application.displayToastMessage(e.toString());
+        }
    	}
    	
    	private void hideCommunityText(boolean hide) {
