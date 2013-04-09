@@ -13,7 +13,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "onReceive(): " + context + " " + intent);
         if (intent.getAction().equals(TetherApplication.MESSAGE_REPORT_STATS)) {
-            TetherApplication.singleton.reportStats(-2, true);
+            TetherApplication.singleton.reportStats(-2, false);
         }
     }
 }
