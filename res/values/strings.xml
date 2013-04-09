@@ -159,7 +159,7 @@
 	<string name="donate_layout_line2">By donating you support an Open Source project.</string>
 	<string name="donate_layout_line3">Donations are used to advocate Net Neutrality.</string>
 	<string name="donate_layout_line4">You can also donate later through the \'About\' dialog.</string>
-	<string name="donate_layout_line5">Thank you very much for the support! Please check Twitter @OpenGardening for updates on Open Garden.</string>
+	<string name="donate_layout_line5">Thank you very much for the support! Please check Twitter @OpenGarden for updates on Open Garden.</string>
 	<string name="noaccesscontrol_layout_line1">Sorry, your Operating System is unable to use the Access Control feature of this application. Access Control will be disabled.</string>
 	<string name="noaccesscontrol_layout_line2">Please see the FAQ: http://opengarden.net/FAQ</string>
 	<string name="nonetfilter_layout_line1">Sorry, your Operating System does not appear to have all the features necessary for running this application.</string>
@@ -179,7 +179,7 @@
 	<string name="connect_facebook">Add Facebook</string>
 	<string name="facebook_connected">Facebook</string>
 	<string name="post_button">Post</string>
-	<string name="post_text">I am super connected!\nJust downloaded #MB using #OpenGarden @opengardening #Android #Tether </string>
+	<string name="post_text">I am super connected!\nJust downloaded #MB using #OpenGarden @OpenGarden #Android #Tether </string>
 	<string name="auto_post_text">Auto Post</string>
 	<string name="dialog_launched_title">Install Open Garden</string>
 	<string name="dialog_launched_text">Tethering failed to start. Tether may not work on your phone.\n\nTry our mesh networking app; it doesn\'t require root because it needs to be installed on every device.\n\nOn the next screen, tap \"Install\"</string>
