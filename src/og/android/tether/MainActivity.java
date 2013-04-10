@@ -12,22 +12,14 @@
 
 package og.android.tether;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 import android.R.drawable;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.app.AlertDialog.Builder;
-import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.*;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,7 +27,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.Html;
 import android.text.Spanned;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.*;
 import android.view.View.OnClickListener;
@@ -45,17 +36,17 @@ import android.view.animation.ScaleAnimation;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.TrackedActivity;
 import com.google.android.c2dm.C2DMessaging;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import org.miscwidgets.widget.Panel;
 import org.miscwidgets.widget.Panel.OnPanelListener;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 
 public class MainActivity extends TrackedActivity {
@@ -182,6 +173,9 @@ public class MainActivity extends TrackedActivity {
         }
 
         this.application.reportStats(-1, false);
+
+        // open ad bar
+        openAdBar();
         
         // Startup-Check
         if (this.application.startupCheckPerformed == false) {
@@ -221,7 +215,7 @@ public class MainActivity extends TrackedActivity {
 	        		this.application.installFiles();
 	        	}
 	        }
-	    	
+
 	        // Open donate-dialog
 			this.openDonateDialog();
         
@@ -349,12 +343,12 @@ public class MainActivity extends TrackedActivity {
 
 		// Toggles between start and stop screen
 		this.toggleStartStop();
+    }
 
-
-        // Add Ad at the bottom of the screen
-
+    private void openAdBar() {
         LayoutInflater li = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View ad_view = li.inflate(R.layout.ad_view,null);
+        ad_view.setBackgroundColor(Color.TRANSPARENT);
 
         final WindowManager wm = getWindowManager();
         WindowManager.LayoutParams wmParams = new WindowManager.LayoutParams();
@@ -363,7 +357,8 @@ public class MainActivity extends TrackedActivity {
         wmParams.gravity = Gravity.BOTTOM;
         wmParams.y = 100;
         wmParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
-        wmParams.alpha = (float) 0.99;
+        wmParams.format = PixelFormat.TRANSLUCENT;
+
         wm.addView(ad_view,wmParams);
 
         View ad_open = ad_view.findViewById(R.id.ad_open);
@@ -401,7 +396,7 @@ public class MainActivity extends TrackedActivity {
         ad_open.setOnClickListener(adListener);
         ad_close.setOnClickListener(adListener);
     }
-    
+
     @Override
 	public boolean onTrackballEvent(MotionEvent event){
 		if (event.getAction() == MotionEvent.ACTION_DOWN){
