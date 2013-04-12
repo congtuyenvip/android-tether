@@ -19,6 +19,7 @@ import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.*;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.net.Uri;
@@ -104,7 +105,7 @@ public class MainActivity extends TrackedActivity {
 	public static final int MESSAGE_TRAFFIC_COUNT = 9;
 	public static final int MESSAGE_TRAFFIC_RATE = 10;
 	public static final int MESSAGE_TRAFFIC_END = 11;
-	
+
 	public static final String MSG_TAG = "TETHER -> MainActivity";
 	public static MainActivity currentInstance = null;
 	
@@ -510,6 +511,8 @@ public class MainActivity extends TrackedActivity {
 	private static final int MENU_ACCESS = 3;
 	private static final int MENU_CONNECT = 4;
 	private static final int MENU_COMMUNITY = 5;
+    private static final int MENU_TWITTER = 6;
+    private static final int MENU_FACEBOOK = 7;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -528,6 +531,9 @@ public class MainActivity extends TrackedActivity {
     	community.setIcon(drawable.ic_menu_myplaces);
     	SubMenu about = menu.addSubMenu(0, MENU_ABOUT, 0, getString(R.string.main_activity_about));
     	about.setIcon(drawable.ic_menu_info_details);
+
+        SubMenu twitter = menu.addSubMenu(0, MENU_TWITTER, 0, getString(R.string.main_activity_twitter));
+        SubMenu facebook = menu.addSubMenu(0, MENU_FACEBOOK, 0, getString(R.string.main_activity_facebook));
     	return supRetVal;
     }
     
@@ -557,10 +563,42 @@ public class MainActivity extends TrackedActivity {
 	    	case MENU_COMMUNITY :
 	    	    this.application.statCommunityClicks();
 	    	    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.communityUrl))));
-                break;	    	    
+                break;
+
+            case MENU_TWITTER :
+
+                try
+                {
+                    getPackageManager().getPackageInfo("com.twitter.android", PackageManager.GET_ACTIVITIES);
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setClassName("com.twitter.android", "com.twitter.android.ProfileActivity");
+                    intent.putExtra("user_id", 221897815L);
+                    startActivity(intent);
+                }
+                catch (PackageManager.NameNotFoundException e)
+                {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/OpenGarden")));
+                }
+
+                break;
+
+            case MENU_FACEBOOK :
+
+                try
+                {
+                    getPackageManager().getPackageInfo("com.facebook.katana", PackageManager.GET_ACTIVITIES);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("fb://profile/199666333378900"));
+                    startActivity(intent);
+                }
+                catch (PackageManager.NameNotFoundException e)
+                {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://facebook.com/OpenGarden")));
+                }
+
+                break;
     	}
     	return supRetVal;
-    }    
+    }
 
     @Override
     protected Dialog onCreateDialog(int id) {

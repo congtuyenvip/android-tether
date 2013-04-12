@@ -26,6 +26,8 @@
     <string name="main_activity_accesscontrol">Access Control</string>
     <string name="main_activity_connect">Connect</string>
     <string name="main_activity_community">Community</string>
+    <string name="main_activity_twitter">Twitter</string>
+    <string name="main_activity_facebook">Facebook</string>
     <string name="main_activity_start">Start Tethering</string>
     <string name="main_activity_start_summary">Please wait while starting...</string>
     <string name="main_activity_start_errors">Tethering started with errors! Please check \'Show log\'.</string>
@@ -424,4 +426,5 @@
 	</string-array>
     <string name="setup_layout_community">Disable Community</string>
     <string name="setup_layout_community_summary">Hide the Community section</string>
+
 </resources>
